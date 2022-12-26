@@ -55,7 +55,7 @@
 
       <li class="nav-item {{ active_class(['user/*']) }}">
         <a class="nav-link" data-bs-toggle="collapse" href="#users" role="button" aria-expanded="{{ is_active_route(['user/*']) }}" aria-controls="users">
-          <i class="link-icon" data-feather="feather"></i>
+          <i class="link-icon" data-feather="users"></i>
           <span class="link-title">Users</span>
           <i class="link-arrow" data-feather="chevron-down"></i>
         </a>
@@ -66,6 +66,20 @@
             </li>
             <li class="nav-item">
               <a href="{{ route('user.index') }}" class="nav-link {{ active_class(['user']) }}">List</a>
+            </li>
+          </ul>
+        </div>
+      </li>
+      <li class="nav-item {{ active_class(['configuration/*']) }}">
+        <a class="nav-link" data-bs-toggle="collapse" href="#configurations" role="button" aria-expanded="{{ is_active_route(['configuration/*']) }}" aria-controls="configurations">
+          <i class="link-icon" data-feather="settings"></i>
+          <span class="link-title">Configuration</span>
+          <i class="link-arrow" data-feather="chevron-down"></i>
+        </a>
+        <div class="collapse {{ show_class(['configuration*']) }}" id="configurations">
+          <ul class="nav sub-menu">
+            <li class="nav-item">
+              <a href="{{ route('configuration.edit') }}" class="nav-link {{ active_class(['configuration/edit']) }}">Edit</a>
             </li>
           </ul>
         </div>

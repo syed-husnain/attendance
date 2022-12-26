@@ -32,6 +32,12 @@ Route::middleware(['user_auth'])->group(function () {
     });
 
     Route::resource('user', 'UserController');
+    Route::post('/user/status','UserController@status')->name('status');
+
+    Route::get('configuration/edit','ConfigController@index')->name('configuration.edit');
+    Route::post('configuration/store','ConfigController@store')->name('configuration.store');
+
+
 });
 
 Route::group(['prefix' => 'email'], function(){

@@ -24,13 +24,22 @@ class UserController extends Controller
             $data = User::select('*')->where('role','!=','Admin');
             return Datatables::of($data)
                     ->addIndexColumn()
+                    ->addColumn('status', function($row){     
+                        $status = '';
+                        if($row->status == 1)
+                            $status = '<a href="javascript:void(0)" onclick="changeStatus(' . $row->id . ')" class="badge bg-success">Active</a>';
+                        else
+                            $status = '<a href="javascript:void(0)" onclick="changeStatus(' . $row->id . ')" class="badge bg-danger">InActive</a>';
+
+                        return $status;
+                    })
                     ->addColumn('action', function($row){
      
                            $btn = '<a href="' . URL::route('user.edit', $row->id) . '" class="edit btn btn-primary btn-xs">Edit</a>';
                            $btn .= ' <a href="javascript:void(0)" onclick="deleteUser(' . $row->id . ')" class="edit btn btn-danger btn-xs">Delete</a>';
                            return $btn;
                     })
-                    ->rawColumns(['action'])
+                    ->rawColumns(['action','status'])
                     ->make(true);
         }
         
@@ -63,6 +72,12 @@ class UserController extends Controller
         $user = User::create($request->all());
         if($user)
         {
+            $lastId = $user->id;
+            $prefix = str_pad(intval($lastId), 3, 0, STR_PAD_LEFT);
+            $user->update([
+                'prefix' => $prefix
+            ]);
+
             return response()->json([
                 'status_code' => Response::HTTP_OK,
                 'success'     => TRUE,
@@ -167,6 +182,33 @@ class UserController extends Controller
                 'error'         => TRUE,
                 'data'          => [],
                 'message'       => "doesn't Deleted! Try again ",
+            ]);
+        }
+    }
+    public function status(Request $request)
+    {
+        $user = User::find($request->id);
+        if($user)
+        {
+            if($user->status == 0 )
+                $user->update(['status' => 1]);
+            else
+                $user->update(['status' => 0]);
+
+            return response()->json([
+                'status_code' => Response::HTTP_OK,
+                'success'     => TRUE,
+                'error'       => FALSE,
+                'data'        => [],
+                'message'     => 'Status Change Successfully']);
+        }
+        else{
+            return response()->json([
+                'status_code'   => Response::HTTP_UNPROCESSABLE_ENTITY,
+                'success'       => FALSE,
+                'error'         => TRUE,
+                'data'          => [],
+                'message'       => "doesn't Change Status! Try again ",
             ]);
         }
     }

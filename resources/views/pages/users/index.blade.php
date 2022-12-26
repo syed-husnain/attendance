@@ -23,6 +23,7 @@
                 <th>Id</th>
                 <th>Name</th>
                 <th>Email</th>
+                <th>Status</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -60,6 +61,7 @@
                     {data: 'id', name: 'id'},
                     {data: 'name', name: 'name'},
                     {data: 'email', name: 'email', orderable: false, searchable: false},
+                    {data: 'status', name: 'status', orderable: false, searchable: false},
                     {data: 'action', name: 'action', orderable: false, searchable: false},
                 ],
                 drawCallback: function (response) {
@@ -92,6 +94,45 @@
                               Swal.fire({
                                     icon: 'success',
                                     title: 'Deleted Successfully',
+                                    confirmButtonText: 'Ok',
+                                    }).then((result) => {
+                                    /* Read more about isConfirmed, isDenied below */
+                                    if (result.isConfirmed) {
+                                      $('#user_list').DataTable().ajax.reload();
+    
+                                    }
+                                })
+                                
+                            }
+                        }
+                    });
+                }
+            })
+        }
+        function changeStatus(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to change Status",
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        method: "POST",
+                        url: '{{url('user/status')}}',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            'id': id
+                        },
+                        success: function (response) {
+                            if(response.success)
+                            {
+                              Swal.fire({
+                                    icon: 'success',
+                                    title: 'Status Change Successfully',
                                     confirmButtonText: 'Ok',
                                     }).then((result) => {
                                     /* Read more about isConfirmed, isDenied below */

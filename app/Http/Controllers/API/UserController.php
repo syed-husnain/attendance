@@ -24,7 +24,7 @@ class UserController extends Controller
      */
     public function index($num = 10, $last = NULL)
     {
-        $data = User::select('*')->where('role','!=','Admin')->paginate(10);
+        $data = User::select('id','prefix as user_id','name','email','cnic','phone','dob','designation','member_since','role')->where('role','!=','Admin')->paginate(10);
         if(!empty($data)){
 
             $status_code = Response::HTTP_OK;
@@ -151,6 +151,7 @@ class UserController extends Controller
         ->when($id, function ($query) use ($id){
             $query->where('id',$id);
         })
+        ->select('id','prefix as user_id','name','email','cnic','phone','dob','designation','member_since','role')
         ->get();
         if(!empty($data)){
 

@@ -70,7 +70,14 @@ class AuthController extends Controller
                     return response()->json($response, Response::HTTP_OK);
                 }
                 else{
-                    return response()->json('error', Response::HTTP_UNPROCESSABLE_ENTITY);
+                    return response()->json([
+                        'status'    => Response::HTTP_UNPROCESSABLE_ENTITY,
+                        'success'   => false,
+                        'error'     => true,
+                        'message'   => "Invalid user email or password",
+                        'token'     => '',
+                        'data'      => []
+                    ]);
                 }
         }
 
