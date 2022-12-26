@@ -1,0 +1,39 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class AddColumnToUsersTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('cnic')->nullable()->after('password');
+            $table->string('phone')->nullable()->after('cnic');
+            $table->date('dob')->nullable()->after('phone');
+            $table->string('designation')->nullable()->after('dob');
+            $table->date('member_since')->nullable()->after('designation');
+            $table->enum('role',['Admin', 'Employee'])->after('member_since');
+            $table->string('basic_salary')->after('role');
+
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::table('users', function (Blueprint $table) {
+            //
+        });
+    }
+}

@@ -1,0 +1,249 @@
+<?php
+
+namespace App\Http\Controllers\API;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\User;
+use App\Models\Attendance;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
+
+use DB;
+use Carbon\Carbon;
+
+
+class UserController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index($num = 10, $last = NULL)
+    {
+        $data = User::select('*')->where('role','!=','Admin')->paginate(10);
+        if(!empty($data)){
+
+            $status_code = Response::HTTP_OK;
+            $success     = TRUE;
+            $error       = FALSE;
+            $data        = $data;
+            // $rows        = $total;
+            $message     = 'User Data Loaded Successfully';
+
+        }else{
+
+            $status_code = Response::HTTP_UNPROCESSABLE_ENTITY;
+            $success     = TRUE;
+            $error       = FALSE;
+            $data        = [];
+            $rows        = '';
+            $message     = 'User Data does not exists';            
+        }
+        return response()->json([
+            'status'    => $status_code,
+            'success'   => $success,
+            'error'     => $error,
+            'data'      => $data,
+            // 'rows'      => $rows,
+            'message'   => $message,
+            ]);
+    }
+    public function attendanceMark(Request $request){
+
+        $validator = Validator::make($request->all(), [
+            'user_id'         => 'required',
+
+        ]);
+        if ($validator->fails()) {
+            $response = [
+                "status"     => Response::HTTP_UNPROCESSABLE_ENTITY,
+                "success"    => false,
+                'error'      => true,
+                "message"    => "validation error",
+                "data"       => $validator->errors()->messages(),
+            ];
+            return response()->json($response, Response::HTTP_UNPROCESSABLE_ENTITY);
+
+        }
+        else{
+            $user = User::where('role', '!=', 'Admin')->where('id',(int)$request->user_id)->first();
+            if($user){
+
+               $due_date     =  Carbon::today()->toDateString();
+               $current_time =  Carbon::now()->format('H:i');
+    
+
+                $checkExsist = Attendance::where('user_id',$user->id)->where('due_date',$due_date)->first();
+            
+                if($checkExsist){
+
+                    if($checkExsist->check_in != null && $checkExsist->check_out != null)
+                    {
+                        // when user already check in or check out
+                        return response()->json([
+                            'status'    => Response::HTTP_UNPROCESSABLE_ENTITY,
+                            'success'   => FALSE,
+                            'error'     => TRUE,
+                            'message'   => 'Already Marked Attendace'
+                        ]);
+                    }
+
+                    // if exsit then reocrd update
+                    $data = [
+                        'user_id'   => $user->id,
+                        'due_date'  => $due_date,
+                        'check_out' => $current_time
+                    ];
+                    $record = $checkExsist->update($data);
+                    if($record){
+
+                        $status_code = Response::HTTP_OK;
+                        $success     = TRUE;
+                        $error       = FALSE;
+                        $message     = 'Attendance Marked Successfully';
+                    }
+
+                }else{
+                    // if not exsist then new row created
+                    $data = [
+                        'user_id'   => $user->id,
+                        'due_date'  => $due_date,
+                        'check_in'  => $current_time
+                    ];
+                    $record = Attendance::create($data);
+                    if($record){
+
+                        $status_code = Response::HTTP_OK;
+                        $success     = TRUE;
+                        $error       = FALSE;
+                        $message     = 'Attendance Marked Successfully';
+                    }
+                }
+                return response()->json([
+                    'status'    => $status_code,
+                    'success'   => $success,
+                    'error'     => $error,
+                    // 'rows'      => $rows,
+                    'message'   => $message,
+                ]);
+            }else{
+                return response()->json([
+                    'status'    => Response::HTTP_UNPROCESSABLE_ENTITY,
+                    'success'   => FALSE,
+                    'error'     => TRUE,
+                    // 'rows'      => $rows,
+                    'message'   => 'Something went wrong, User not found.',
+                ]);
+            }
+        
+           
+        }
+       
+    }
+    public function attendanceHistory($id = null){
+    
+        $data = User::with('attendances')
+        ->where('role','!=','Admin')
+        ->when($id, function ($query) use ($id){
+            $query->where('id',$id);
+        })
+        ->get();
+        if(!empty($data)){
+
+            $status_code = Response::HTTP_OK;
+            $success     = TRUE;
+            $error       = FALSE;
+            $data        = $data;
+            // $rows        = $total;
+            $message     = 'Data Loaded Successfully';
+
+        }else{
+
+            $status_code = Response::HTTP_UNPROCESSABLE_ENTITY;
+            $success     = TRUE;
+            $error       = FALSE;
+            $data        = [];
+            $rows        = '';
+            $message     = 'Data does not exists';            
+        }
+        return response()->json([
+            'status'    => $status_code,
+            'success'   => $success,
+            'error'     => $error,
+            'data'      => $data,
+            // 'rows'      => $rows,
+            'message'   => $message,
+            ]);
+
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        //
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        //
+    }
+}
