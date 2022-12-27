@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Config;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -75,7 +76,17 @@ class UserController extends Controller
 
                $due_date     =  Carbon::today()->toDateString();
                $current_time =  Carbon::now()->format('H:i');
-    
+
+               $config = Config::first();
+            
+               if(!$config){
+                    return response()->json([
+                        'status'    => Response::HTTP_UNPROCESSABLE_ENTITY,
+                        'success'   => FALSE,
+                        'error'     => TRUE,
+                        'message'   => 'Please Contact Administration. First add office in or out time.'
+                    ]);
+               }
 
                 $checkExsist = Attendance::where('user_id',$user->id)->where('due_date',$due_date)->first();
             
@@ -93,10 +104,20 @@ class UserController extends Controller
                     }
 
                     // if exsit then reocrd update
+                    $to = Carbon::createFromFormat('H:s', '3:30');
+                    $from = Carbon::createFromFormat('H:s', '9:30');
+                    $diff_in_hours = $to->diffInHours($from);
+                    // dd($diff_in_hours);
+                    $office_end_time = date('H:i', strtotime( $config->end_time ));
+                    if($current_time <= $office_end_time || $current_time >= $office_end_time)
+                    {   
+                        $status = 'Full';
+                    }
                     $data = [
                         'user_id'   => $user->id,
                         'due_date'  => $due_date,
-                        'check_out' => $current_time
+                        'check_out' => $current_time,
+                        'status'    => $status
                     ];
                     $record = $checkExsist->update($data);
                     if($record){
@@ -104,15 +125,23 @@ class UserController extends Controller
                         $status_code = Response::HTTP_OK;
                         $success     = TRUE;
                         $error       = FALSE;
-                        $message     = 'Attendance Marked Successfully';
+                        $message     = 'You have signed out successfully';
                     }
 
                 }else{
                     // if not exsist then new row created
+                    
+                    $office_start_time = date('H:i', strtotime( $config->start_time ));
+                    $status = '';
+                    if($current_time <= $office_start_time || $current_time >= $office_start_time)
+                    {   
+                        $status = 'Start';
+                    }
                     $data = [
                         'user_id'   => $user->id,
                         'due_date'  => $due_date,
-                        'check_in'  => $current_time
+                        'check_in'  => $current_time,
+                        'status'    => $status
                     ];
                     $record = Attendance::create($data);
                     if($record){
@@ -120,7 +149,7 @@ class UserController extends Controller
                         $status_code = Response::HTTP_OK;
                         $success     = TRUE;
                         $error       = FALSE;
-                        $message     = 'Attendance Marked Successfully';
+                        $message     = 'You have signed in successfully';
                     }
                 }
                 return response()->json([

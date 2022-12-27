@@ -6,6 +6,7 @@ use App\Models\Config;
 use App\Http\Requests\StoreConfigRequest;
 use App\Http\Requests\UpdateConfigRequest;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class ConfigController extends Controller
 {
@@ -39,7 +40,19 @@ class ConfigController extends Controller
     public function store(StoreConfigRequest $request)
     {
         // StoreConfigRequest
-       dd($request->all());
+       $config = Config::updateOrCreate([
+            'id' => 1
+       ],[
+            'start_time' => date('H:i', strtotime( $request->start_time )),
+            'end_time'   => date('H:i', strtotime( $request->end_time ))
+       ]);
+
+       return response()->json([
+        'status_code' => Response::HTTP_OK,
+        'success'     => TRUE,
+        'error'       => FALSE,
+        'data'        => [],
+        'message'     => 'Configuration added Successfully.']);
     }
 
     /**

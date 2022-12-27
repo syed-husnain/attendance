@@ -8,4 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Config extends Model
 {
     use HasFactory;
+    
+    protected $fillable = ['start_time','end_time'];
+
 }

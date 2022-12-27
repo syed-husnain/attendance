@@ -25,7 +25,7 @@ class StoreConfigRequest extends FormRequest
     {
         return [
             'start_time' => 'required|date_format:H:i',
-            // 'end_time' => 'date_format:H:i a|after:start_time',
+            'end_time' => 'date_format:H:i|after:start_time',
         ];
     }
 }

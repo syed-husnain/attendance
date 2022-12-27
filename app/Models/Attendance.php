@@ -10,7 +10,7 @@ class Attendance extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'due_date', 'check_in','check_out'
+        'user_id', 'due_date', 'check_in','check_out','status'
     ];
     // protected $casts = [
     //     'check_in' => 'date:hh:mm',

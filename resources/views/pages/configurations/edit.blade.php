@@ -33,7 +33,7 @@
           <div class="col-md-6 mb-3">
             <label for="end_time" class="form-label">End Time</label>
             <div class="input-group date timepicker" id="endTimePicker" data-target-input="nearest">
-              <input type="text" name="end_time" class="form-control datetimepicker-input" data-target="#endTimePicker"/>
+              <input type="text" name="end_time" value="{{$config->end_time ?? ''}}" class="form-control datetimepicker-input" data-target="#endTimePicker"/>
               <span class="input-group-text" data-target="#endTimePicker" data-toggle="datetimepicker"><i data-feather="clock"></i></span>
             </div>
           </div>
@@ -88,12 +88,12 @@
                             {
                                 Swal.fire({
                                     icon: 'success',
-                                    title: 'Updated Successfully',
+                                    title: 'Record updated Successfully',
                                     confirmButtonText: 'Ok',
                                     }).then((result) => {
                                     /* Read more about isConfirmed, isDenied below */
                                     if (result.isConfirmed) {
-                                        window.location="{{route('user.index')}}";
+                                       
     
                                     } else if (result.isDenied) {
                                         Swal.fire('Changes are not saved', '', 'info')

@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\ApI\UserController;
 
 
 /*
