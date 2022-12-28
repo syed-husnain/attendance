@@ -23,13 +23,13 @@ Route::middleware('auth:api')->group( function(){
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::group(['prefix' => 'user', 'as' => 'user.'], function () {
-        Route::get('index/{num?}/{last?}','Api\UserController@index')->name('index');
-        Route::get('attendance/history/{id?}','Api\UserController@attendanceHistory')->name('history');
+        Route::get('index/{num?}/{last?}','API\UserController@index')->name('index');
+        Route::get('attendance/history/{id?}','API\UserController@attendanceHistory')->name('history');
        
     });
     Route::apiResource('user', 'UserController')->except(['index']);
     // Route::get('get-users',[AuthController::class, 'getUsers']);
 
 });
-Route::post('attendance/mark','Api\UserController@attendanceMark')->name('attendanceMark');
+Route::post('attendance/mark','API\UserController@attendanceMark')->name('attendanceMark');
 
