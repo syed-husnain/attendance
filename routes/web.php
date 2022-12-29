@@ -37,6 +37,11 @@ Route::middleware(['user_auth'])->group(function () {
     Route::get('configuration/edit','ConfigController@index')->name('configuration.edit');
     Route::post('configuration/store','ConfigController@store')->name('configuration.store');
 
+    // change password
+    Route::get('/change-password', 'Auth\AuthController@changePassword')->name('changePassword');
+    Route::post('/update-password', 'Auth\AuthController@updatePassword')->name('updatePassword');
+
+
 
 });
 

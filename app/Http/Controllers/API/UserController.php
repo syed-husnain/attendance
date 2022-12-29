@@ -180,18 +180,36 @@ class UserController extends Controller
         ->when($id, function ($query) use ($id){
             $query->where('id',$id);
         })
-        ->select('id','prefix as user_id','name','email','cnic','phone','dob','designation','member_since','role')
+        ->select('id','prefix as user_id','name','email','cnic','phone','dob','designation','member_since','role',
+        \DB::raw('(CASE 
+                        WHEN users.status = "0" THEN "Inactive" 
+                        ELSE "Active" 
+                        END) AS status'))
         ->get();
-        if(!empty($data)){
-
+        
+        if(!empty($data) && count($data) > 0){
+    
             $status_code = Response::HTTP_OK;
             $success     = TRUE;
             $error       = FALSE;
             $data        = $data;
             // $rows        = $total;
             $message     = 'Data Loaded Successfully';
+            if($id)
+            {
+           
+                if($data[0]->status == 'Inactive'){
+                    $status_code = Response::HTTP_UNPROCESSABLE_ENTITY;
+                    $success     = TRUE;
+                    $error       = FALSE;
+                    $data        = [];
+                    $rows        = '';
+                    $message     = 'User is Inactive';    
+                }
+            }
 
-        }else{
+        }
+        else{
 
             $status_code = Response::HTTP_UNPROCESSABLE_ENTITY;
             $success     = TRUE;
