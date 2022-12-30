@@ -18,8 +18,8 @@ class CreateAttendancesTable extends Migration
             $table->id();
             $table->foreignIdFor(User::class);
             $table->date('due_date');
-            $table->time("check_in");
-            $table->time("check_out");
+            $table->timestamp("check_in");
+            $table->timestamp("check_out");
             $table->timestamps();
         });
     }
