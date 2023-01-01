@@ -41,6 +41,13 @@ Route::middleware(['user_auth'])->group(function () {
     Route::get('/change-password', 'Auth\AuthController@changePassword')->name('changePassword');
     Route::post('/update-password', 'Auth\AuthController@updatePassword')->name('updatePassword');
 
+    // Route::get('/','AttendanceController@index')->name('attendance.list');
+    Route::group(['prefix' => '/attendance', 'as' => 'attendance.'], function () {
+          Route::get('/', 'AttendanceController@index')->name('index');
+          Route::post('/status', 'AttendanceController@status')->name('status');
+
+      });
+
 
 
 });

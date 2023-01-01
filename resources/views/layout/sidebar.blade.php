@@ -1,7 +1,7 @@
 <nav class="sidebar">
   <div class="sidebar-header">
     <a href="#" class="sidebar-brand">
-      Noble<span>UI</span>
+      AMS<span></span>
     </a>
     <div class="sidebar-toggler not-active">
       <span></span>
@@ -18,8 +18,8 @@
           <span class="link-title">Dashboard</span>
         </a>
       </li>
-      <li class="nav-item nav-category">web apps</li>
-      <li class="nav-item {{ active_class(['email/*']) }}">
+      {{-- <li class="nav-item nav-category">web apps</li> --}}
+      {{-- <li class="nav-item {{ active_class(['email/*']) }}">
         <a class="nav-link" data-bs-toggle="collapse" href="#email" role="button" aria-expanded="{{ is_active_route(['email/*']) }}" aria-controls="email">
           <i class="link-icon" data-feather="mail"></i>
           <span class="link-title">Email</span>
@@ -50,7 +50,7 @@
           <i class="link-icon" data-feather="calendar"></i>
           <span class="link-title">Calendar</span>
         </a>
-      </li>
+      </li> --}}
       <li class="nav-item nav-category">Components</li>
 
       <li class="nav-item {{ active_class(['user/*']) }}">
@@ -70,6 +70,21 @@
           </ul>
         </div>
       </li>
+      <li class="nav-item {{ active_class(['attendance/*']) }}">
+        <a class="nav-link" data-bs-toggle="collapse" href="#attendances" role="button" aria-expanded="{{ is_active_route(['attendance/*']) }}" aria-controls="attendances">
+          <i class="link-icon" data-feather="users"></i>
+          <span class="link-title">Attendance</span>
+          <i class="link-arrow" data-feather="chevron-down"></i>
+        </a>
+        <div class="collapse {{ show_class(['attendance*']) }}" id="attendances">
+          <ul class="nav sub-menu">
+  
+            <li class="nav-item">
+              <a href="{{ route('attendance.index') }}" class="nav-link {{ active_class(['attendance']) }}">List</a>
+            </li>
+          </ul>
+        </div>
+      </li>
       <li class="nav-item {{ active_class(['configuration/*']) }}">
         <a class="nav-link" data-bs-toggle="collapse" href="#configurations" role="button" aria-expanded="{{ is_active_route(['configuration/*']) }}" aria-controls="configurations">
           <i class="link-icon" data-feather="settings"></i>
@@ -85,7 +100,7 @@
         </div>
       </li>
 
-      <li class="nav-item {{ active_class(['ui-components/*']) }}">
+      {{-- <li class="nav-item {{ active_class(['ui-components/*']) }}">
         <a class="nav-link" data-bs-toggle="collapse" href="#uiComponents" role="button" aria-expanded="{{ is_active_route(['ui-components/*']) }}" aria-controls="uiComponents">
           <i class="link-icon" data-feather="feather"></i>
           <span class="link-title">UI Kit</span>
@@ -340,18 +355,18 @@
             </li>
           </ul>
         </div>
-      </li>
-      <li class="nav-item nav-category">Docs</li>
+      </li> --}}
+      {{-- <li class="nav-item nav-category">Docs</li>
       <li class="nav-item">
         <a href="https://www.nobleui.com/laravel/documentation/docs.html" target="_blank" class="nav-link">
           <i class="link-icon" data-feather="hash"></i>
           <span class="link-title">Documentation</span>
         </a>
-      </li>
+      </li> --}}
     </ul>
   </div>
 </nav>
-<nav class="settings-sidebar">
+{{-- <nav class="settings-sidebar">
   <div class="sidebar-body">
     <a href="#" class="settings-sidebar-toggler">
       <i data-feather="settings"></i>
@@ -382,4 +397,4 @@
       </a>
     </div>
   </div>
-</nav>
+</nav> --}}
