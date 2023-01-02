@@ -231,6 +231,16 @@ function errorsGet(errors) {
         }
     }
 }
+  $(document).on('keypress','#phone',function(e){
+    if($(e.target).prop('value').length>=11){
+      if(e.keyCode!=32)
+        {return false} 
+    }});
+    $(document).on('keypress','#cnic',function(e){
+    if($(e.target).prop('value').length>=13){
+      if(e.keyCode!=32)
+        {return false} 
+    }});
   </script>
 
 

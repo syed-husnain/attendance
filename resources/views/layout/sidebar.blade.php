@@ -78,7 +78,9 @@
         </a>
         <div class="collapse {{ show_class(['attendance*']) }}" id="attendances">
           <ul class="nav sub-menu">
-  
+            <li class="nav-item">
+              <a href="{{ route('attendance.create') }}" class="nav-link {{ active_class(['attendance/create']) }}">Add</a>
+            </li>
             <li class="nav-item">
               <a href="{{ route('attendance.index') }}" class="nav-link {{ active_class(['attendance']) }}">List</a>
             </li>

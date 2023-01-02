@@ -6,6 +6,7 @@ use App\Models\Attendance;
 use App\Http\Requests\StoreAttendanceRequest;
 use App\Http\Requests\UpdateAttendanceRequest;
 use App\Models\User;
+use App\Models\Config;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -48,8 +49,9 @@ class AttendanceController extends Controller
                         return $status;
                     })
                     ->addColumn('action', function($row){
-     
-                        $btn = '<div class="dropdown">
+                        $btn = ' <a href="' . URL::route('attendance.edit', $row->id) . '" class="edit btn btn-primary btn-xs">Edit</a>';
+                        
+                        $btn .= ' <div class="dropdown">
                         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                           '.$row->status.'
                         </button>
@@ -185,7 +187,10 @@ class AttendanceController extends Controller
      */
     public function create()
     {
-        //
+        $users = User::where('role','!=', 'Admin')->where('status',1)->get();
+        return view('pages.attendances.create')->with([
+            'users' => $users
+        ]);
     }
 
     /**
@@ -196,7 +201,40 @@ class AttendanceController extends Controller
      */
     public function store(StoreAttendanceRequest $request)
     {
-        //
+        $request['due_date'] = Carbon::createFromFormat('d/m/Y', $request->due_date)->format('Y-m-d');
+        $alreadyExsist = Attendance::where('user_id',$request->user_id)->where('due_date', $request['due_date'])->first();
+        if($alreadyExsist){
+            return response()->json([
+                'status_code'   => Response::HTTP_UNPROCESSABLE_ENTITY,
+                'success'       => FALSE,
+                'error'         => TRUE,
+                'data'          => [],
+                'message'       => "User have already marked attendance on same day! Try again ",
+            ]);
+        }
+        else{
+            $attendance = Attendance::create($request->all());
+            if($attendance)
+            {
+                return response()->json([
+                    'status_code' => Response::HTTP_OK,
+                    'success'     => TRUE,
+                    'error'       => FALSE,
+                    'data'        => [],
+                    'message'     => 'Created Successfully']);
+            }
+            else{
+                return response()->json([
+                    'status_code'   => Response::HTTP_UNPROCESSABLE_ENTITY,
+                    'success'       => FALSE,
+                    'error'         => TRUE,
+                    'data'          => [],
+                    'message'       => "doesn't Created! Try again ",
+                ]);
+            }
+        }
+        
+
     }
 
     /**
@@ -217,8 +255,11 @@ class AttendanceController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit(Attendance $attendance)
-    {
-        //
+    {   
+        $users = User::where('role','!=', 'Admin')->where('status',1)->get();
+        return View('pages.attendances.edit')
+            ->with('attendance', $attendance)
+            ->with('users',$users);
     }
 
     /**

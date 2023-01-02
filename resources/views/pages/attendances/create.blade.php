@@ -3,13 +3,15 @@
 @push('plugin-styles')
 <link href="{{ asset('assets/plugins/bootstrap-datepicker/bootstrap-datepicker.min.css') }}" rel="stylesheet" />
 <link href="{{ asset('assets/plugins/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet" />
+<link href="{{ asset('assets/plugins/tempusdominus-bootstrap-4/tempusdominus-bootstrap-4.min.css') }}" rel="stylesheet" />
+
 @endpush
 
 @section('content')
 <nav class="page-breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="#">Users</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Create User</li>
+    <li class="breadcrumb-item"><a href="#">Attendance</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Create Attendance</li>
   </ol>
 </nav>
 
@@ -17,49 +19,53 @@
   <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
-        <h4 class="card-title">Basic Information</h4>
+        <h4 class="card-title">Attendance</h4>
         <form id="userForm">
           @csrf
-          @method('PUT')
+          @method('POST')
           <div class="row">
-          <div class="col-md-6 mb-3">
-            <label for="name" class="form-label">Name</label>
-            <input id="name" class="form-control" name="name" value="{{$user->name}}" type="text">
-          </div>
-          <div class="col-md-6 mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input id="email" class="form-control" name="email" value="{{$user->email}}" type="email">
-          </div>
-          <div class="col-md-6 mb-3">
-            <label for="phone" class="form-label">Phone</label>
-            <input id="phone" class="form-control" name="phone" value="{{$user->phone}}" type="text" onkeypress="return isNumber(event)" placeholder="03XXXXXXXXX">
-          </div>
-          <div class="col-md-6 mb-3">
-            <label for="cnic" class="form-label">CNIC</label>
-            <input id="cnic" class="form-control" name="cnic" value="{{$user->cnic}}" type="text">
-          </div>
-          <div class="col-md-6 mb-3">
-            <label for="dob" class="form-label">Date of Birth</label>
-            <div class="input-group date datepicker" id="datePickerdob">
-              <input type="text" name="dob" value="{{ old('start_date', date('d/m/Y', strtotime($user->dob ?? date('Y-m-d'))) ?? '') }}" class="form-control">
-              <span class="input-group-text input-group-addon"><i data-feather="calendar"></i></span>
+            <div class="col-md-6 mb-3">
+              <label for="user" class="form-label">User</label>
+              <select class="form-select" name="user_id" id="user_id">
+                <option value="">Select Option</option>
+                @foreach ( $users as $user )
+                  <option value="{{$user->id}}">{{ $user->name }}</option>
+                @endforeach
+              </select>
             </div>
-          </div>
-          <div class="col-md-6 mb-3">
-            <label for="designation" class="form-label">Designation</label>
-            <input id="designation" class="form-control" name="designation" value="{{$user->designation}}" type="text">
-          </div>
-          <div class="col-md-6 mb-3">
-            <label for="member_since" class="form-label">Member Since</label>
-            <div class="input-group date datepicker" id="datePickerMember">
-              <input type="text" name="member_since" value="{{ old('start_date', date('d/m/Y', strtotime($user->member_since ?? date('Y-m-d'))) ?? '') }}" class="form-control">
-              <span class="input-group-text input-group-addon"><i data-feather="calendar"></i></span>
+            <div class="col-md-6 mb-3">
+              <label for="due_date" class="form-label">Date</label>
+              <div class="input-group date datepicker" id="datePicker">
+                <input type="text" name="due_date" class="form-control">
+                <span class="input-group-text input-group-addon"><i data-feather="calendar"></i></span>
+              </div>
             </div>
-          </div>
-          <div class="col-md-6 mb-3">
-            <label for="basic_salary" class="form-label">Basic Salary</label>
-            <input id="basic_salary" class="form-control" name="basic_salary" value="{{$user->basic_salary}}" type="text">
-          </div>
+            <div class="col-md-6 mb-3">
+              <label for="check_in" class="form-label">Sign In</label>
+              <div class="input-group date timepicker" id="startTimePicker" data-target-input="nearest">
+                <input type="text" name="check_in" value="" class="form-control datetimepicker-input" data-target="#startTimePicker"/>
+                <span class="input-group-text" data-target="#startTimePicker" data-toggle="datetimepicker"><i data-feather="clock"></i></span>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="check_out" class="form-label">Sign Out</label>
+              <div class="input-group date timepicker" id="endTimePicker" data-target-input="nearest">
+                <input type="text" name="check_out" value="" class="form-control datetimepicker-input" data-target="#endTimePicker"/>
+                <span class="input-group-text" data-target="#endTimePicker" data-toggle="datetimepicker"><i data-feather="clock"></i></span>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="status" class="form-label">Status</label>
+              <select class="form-select" name="status" id="status">
+                <option value="">Select Option</option>
+                <option value="Start">Start</option>
+                <option value="Full">Full</option>
+                <option value="Reduced">Reduced</option>
+                <option value="Absent">Absent</option>
+                <option value="Leave">Leave</option>
+                <option value="Holiday">Holiday</option>
+              </select>
+            </div>
         </div>
           <input class="btn btn-primary" id="submit" type="submit" value="Submit">
         </form>
@@ -75,6 +81,8 @@
   <script src="{{ asset('assets/plugins/bootstrap-maxlength/bootstrap-maxlength.min.js') }}"></script>
   <script src="{{ asset('assets/plugins/bootstrap-datepicker/bootstrap-datepicker.min.js') }}"></script>
   <script src="{{ asset('assets/plugins/moment/moment.min.js') }}"></script>
+  <script src="{{ asset('assets/plugins/tempusdominus-bootstrap-4/tempusdominus-bootstrap-4.js') }}"></script>
+
 @endpush
 
 @push('custom-scripts')
@@ -94,7 +102,7 @@
                     $( "#submit" ).prop( "disabled", true );
                     
                     $.ajax({
-                        url: "{{ route('user.update',$id) }}",
+                        url: "{{ route('attendance.store') }}",
                         type:"POST",
                         data:formData,
                         processData: false,
@@ -107,12 +115,28 @@
                             {
                                 Swal.fire({
                                     icon: 'success',
-                                    title: 'Updated Successfully',
+                                    title: 'Record Created Successfully',
                                     confirmButtonText: 'Ok',
                                     }).then((result) => {
                                     /* Read more about isConfirmed, isDenied below */
                                     if (result.isConfirmed) {
-                                        window.location="{{route('user.index')}}";
+                                      window.location.href = "{{route('attendance.index')}}";
+    
+                                    } else if (result.isDenied) {
+                                        Swal.fire('Changes are not saved', '', 'info')
+                                    }
+                                })
+  
+                            }else{
+                              Swal.fire({
+                                    icon: 'error',
+                                    title: response.message,
+                                    confirmButtonText: 'Ok',
+                                    }).then((result) => {
+                                    /* Read more about isConfirmed, isDenied below */
+                                    if (result.isConfirmed) {
+                                      $( "#submit" ).prop( "disabled", false );
+                                        // window.location="{{route('user.index')}}";
     
                                     } else if (result.isDenied) {
                                         Swal.fire('Changes are not saved', '', 'info')
@@ -129,51 +153,31 @@
             
                         },
                     });
-            
-
-
     }
   });
   $(function() {
     // validate signup form on keyup and submit
     $("#userForm").validate({
       rules: {
-        name: {
+        user_id: {
           required: true,
-          minlength: 3
         },
-        email: {
+        check_in: {
           required: true,
-          email: true
         },
-        phone: {
+        check_out: {
           required: true,
-          maxlength: 11,
         },
-        designation: {
-          required: true,
-          maxlength: 199,
-        },
-        basic_salary: {
+        status: {
           required: true,
         },
       },
       messages: {
-        name: {
-          required: "Name field is required.",
-          minlength: "Name must consist of at least 3 characters"
+        check_in: {
+          required: "Sign in field is required."
         },
-        email: "Please enter a valid email address",
-        phone: {
-          required: "Phone field is required.",
-          minlength: "Phone must consist of at 11 characters"
-        },
-        designation: {
-          required: 'Designation field is required',
-          maxlength: 'Designation not be greater then 199 characters',
-        },
-        basic_salary: {
-          required: 'Basic Salary field is required.',
+        check_out: {
+          required: "Sign out field is required."
         },
       },
       errorPlacement: function(error, element) {
@@ -197,19 +201,25 @@
         }
       }
     });
-  });
 
-
-  if($('#datePickerMember').length) {
+    if($('#datePicker').length) {
     var date = new Date();
     var today = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    $('.datepicker').datepicker({
+    $('#datePicker').datepicker({
       format: "dd/mm/yyyy",
       todayHighlight: true,
       autoclose: true
     });
-    // $('#datePickerMember').datepicker('setDate', today);
+    $('#datePicker').datepicker('setDate', today);
   }
+
+
+  });
+
+
+  $('#startTimePicker, #endTimePicker').datetimepicker({
+    format: 'HH:mm'
+  });
 
 });
 function isNumber(evt) {
@@ -232,16 +242,6 @@ function errorsGet(errors) {
         }
     }
 }
-$(document).on('keypress','#phone',function(e){
-    if($(e.target).prop('value').length>=11){
-      if(e.keyCode!=32)
-        {return false} 
-    }});
-    $(document).on('keypress','#cnic',function(e){
-    if($(e.target).prop('value').length>=13){
-      if(e.keyCode!=32)
-        {return false} 
-    }});
   </script>
 
 

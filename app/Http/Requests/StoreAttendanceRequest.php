@@ -25,6 +25,15 @@ class StoreAttendanceRequest extends FormRequest
     {
         return [
             'user_id'         => 'required',
+            'check_in'        => 'required|date_format:H:i',
+            'check_out'       => 'date_format:H:i|after:check_in',
+        ];
+    }
+    public function messages()
+    {
+        return [
+            'check_in.required' => 'Sign in is required',
+            'check_out.after' => 'The Sign out must be a time after Sign in.',
         ];
     }
 }
