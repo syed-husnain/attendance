@@ -9,6 +9,6 @@ class Config extends Model
 {
     use HasFactory;
     
-    protected $fillable = ['start_time','end_time'];
+    protected $fillable = ['start_time','end_time','leverage_time'];
 
 }

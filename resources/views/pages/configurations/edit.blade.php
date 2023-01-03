@@ -37,6 +37,12 @@
               <span class="input-group-text" data-target="#endTimePicker" data-toggle="datetimepicker"><i data-feather="clock"></i></span>
             </div>
           </div>
+          <div class="col-md-6 mb-3">
+            <label for="leverage_time" class="form-label">Leverage Time</label>
+            
+              <input type="text" name="leverage_time" value="{{$config->leverage_time ?? ''}}" class="form-control"/>
+            
+          </div>
 
         </div>
           <input class="btn btn-primary" id="submit" type="submit" value="Submit">

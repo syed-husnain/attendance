@@ -102,7 +102,7 @@
                     $( "#submit" ).prop( "disabled", true );
                     
                     $.ajax({
-                        url: "{{ route('user.update',$attendance->id) }}",
+                        url: "{{ route('attendance.update',$attendance->id) }}",
                         type:"POST",
                         data:formData,
                         processData: false,
@@ -115,7 +115,7 @@
                             {
                                 Swal.fire({
                                     icon: 'success',
-                                    title: 'Record Created Successfully',
+                                    title: 'Record Updated Successfully',
                                     confirmButtonText: 'Ok',
                                     }).then((result) => {
                                     /* Read more about isConfirmed, isDenied below */
@@ -210,7 +210,7 @@
       todayHighlight: true,
       autoclose: true
     });
-    $('#datePicker').datepicker('setDate', today);
+   
   }
 
 

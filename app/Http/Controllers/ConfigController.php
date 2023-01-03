@@ -44,7 +44,8 @@ class ConfigController extends Controller
             'id' => 1
        ],[
             'start_time' => date('H:i', strtotime( $request->start_time )),
-            'end_time'   => date('H:i', strtotime( $request->end_time ))
+            'end_time'   => date('H:i', strtotime( $request->end_time )),
+            'leverage_time' => $request->leverage_time
        ]);
 
        return response()->json([

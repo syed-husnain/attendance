@@ -271,7 +271,38 @@ class AttendanceController extends Controller
      */
     public function update(UpdateAttendanceRequest $request, Attendance $attendance)
     {
-        //
+        $request['due_date'] = Carbon::createFromFormat('d/m/Y', $request->due_date)->format('Y-m-d');
+        $alreadyExsist = Attendance::where('user_id',$request->user_id)->where('due_date', $request['due_date'])->where('id','!=', $attendance->id)->first();
+        if($alreadyExsist){
+            return response()->json([
+                'status_code'   => Response::HTTP_UNPROCESSABLE_ENTITY,
+                'success'       => FALSE,
+                'error'         => TRUE,
+                'data'          => [],
+                'message'       => "User have already marked attendance on same day! Try again ",
+            ]);
+        }
+        else{
+            $attendance->update($request->all());
+            if($attendance)
+            {
+                return response()->json([
+                    'status_code' => Response::HTTP_OK,
+                    'success'     => TRUE,
+                    'error'       => FALSE,
+                    'data'        => [],
+                    'message'     => 'Updated Successfully']);
+            }
+            else{
+                return response()->json([
+                    'status_code'   => Response::HTTP_UNPROCESSABLE_ENTITY,
+                    'success'       => FALSE,
+                    'error'         => TRUE,
+                    'data'          => [],
+                    'message'       => "doesn't Updated! Try again ",
+                ]);
+            }
+        }
     }
 
     /**

@@ -104,14 +104,24 @@ class UserController extends Controller
                     }
 
                     // if exsit then reocrd update
-                    $to = Carbon::createFromFormat('H:s', '3:30');
-                    $from = Carbon::createFromFormat('H:s', '9:30');
+                    $to = Carbon::createFromFormat('H:s', date('H:i', strtotime( $checkExsist->check_in )));
+                    $from = Carbon::createFromFormat('H:s', $current_time);
                     $diff_in_hours = $to->diffInHours($from);
-                    // dd($diff_in_hours);
+                    // dd($config->start_time);
+
+                    $officeTo = Carbon::createFromFormat('H:s', date('H:i', strtotime($config->start_time )));
+                    $officeFrom = Carbon::createFromFormat('H:s', date('H:i', strtotime( $config->end_time )));
+                    $office_diff_in_hours = $officeTo->diffInHours($officeFrom);
+
+
                     $office_end_time = date('H:i', strtotime( $config->end_time ));
                     if($current_time <= $office_end_time || $current_time >= $office_end_time)
                     {   
                         $status = 'Full';
+                    }
+                    if($diff_in_hours < $office_diff_in_hours)
+                    {
+                        $status = 'Reduced';
                     }
                     $data = [
                         'user_id'   => $user->id,
@@ -143,6 +153,15 @@ class UserController extends Controller
                         'check_in'  => $current_time,
                         'status'    => $status
                     ];
+
+
+                    $officeTo = Carbon::createFromFormat('H:s', date('H:i', strtotime($config->start_time )));
+                    $currentFrom = Carbon::createFromFormat('H:s', date('H:i', strtotime($current_time )));
+                    $time_diff_in_minute = $officeTo->diffInMinutes($currentFrom);
+
+                    if($time_diff_in_minute > $config->leverage_time){
+                        $data['is_late'] = 1;
+                    }
                     $record = Attendance::create($data);
                     if($record){
 
