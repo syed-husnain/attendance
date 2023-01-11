@@ -20,44 +20,45 @@
         <h4 class="card-title">Basic Information</h4>
         <form id="userForm">
           @csrf
+          @method('PUT')
           <div class="row">
           <div class="col-md-6 mb-3">
             <label for="name" class="form-label">Name</label>
-            <input id="name" class="form-control" name="name" type="text">
+            <input id="name" class="form-control" name="name" value="{{$user->name}}" type="text">
           </div>
           <div class="col-md-6 mb-3">
             <label for="email" class="form-label">Email</label>
-            <input id="email" class="form-control" name="email" type="email">
+            <input id="email" class="form-control" name="email" value="{{$user->email}}" type="email">
           </div>
           <div class="col-md-6 mb-3">
             <label for="phone" class="form-label">Phone</label>
-            <input id="phone" class="form-control" name="phone" type="text" onkeypress="return isNumber(event)" placeholder="03XXXXXXXXX">
+            <input id="phone" class="form-control" name="phone" value="{{$user->phone}}" type="text" onkeypress="return isNumber(event)" placeholder="03XXXXXXXXX">
           </div>
           <div class="col-md-6 mb-3">
             <label for="cnic" class="form-label">CNIC</label>
-            <input id="cnic" class="form-control" name="cnic" type="text">
+            <input id="cnic" class="form-control" name="cnic" value="{{$user->cnic}}" type="text">
           </div>
           <div class="col-md-6 mb-3">
             <label for="dob" class="form-label">Date of Birth</label>
-            <div class="input-group date datepicker" id="datePickerExample">
-              <input type="text" name="dob" class="form-control">
+            <div class="input-group date datepicker" id="datePickerdob">
+              <input type="text" name="dob" value="{{ old('start_date', date('d/m/Y', strtotime($user->dob ?? date('Y-m-d'))) ?? '') }}" class="form-control">
               <span class="input-group-text input-group-addon"><i data-feather="calendar"></i></span>
             </div>
           </div>
           <div class="col-md-6 mb-3">
             <label for="designation" class="form-label">Designation</label>
-            <input id="designation" class="form-control" name="designation" type="text">
+            <input id="designation" class="form-control" name="designation" value="{{$user->designation}}" type="text">
           </div>
           <div class="col-md-6 mb-3">
             <label for="member_since" class="form-label">Member Since</label>
             <div class="input-group date datepicker" id="datePickerMember">
-              <input type="text" name="member_since" class="form-control">
+              <input type="text" name="member_since" value="{{ old('start_date', date('d/m/Y', strtotime($user->member_since ?? date('Y-m-d'))) ?? '') }}" class="form-control">
               <span class="input-group-text input-group-addon"><i data-feather="calendar"></i></span>
             </div>
           </div>
           <div class="col-md-6 mb-3">
             <label for="basic_salary" class="form-label">Basic Salary</label>
-            <input id="basic_salary" onkeypress="return isNumber(event)" class="form-control" name="basic_salary" type="text">
+            <input id="basic_salary" class="form-control" name="basic_salary" value="{{$user->basic_salary}}" type="text">
           </div>
         </div>
           <input class="btn btn-primary" id="submit" type="submit" value="Submit">
@@ -89,13 +90,13 @@
     submitHandler: function(form,event) {
       event.preventDefault();
                     let formData = new FormData(document.getElementById("userForm"));
-                  
+                    
                     $( "#submit" ).prop( "disabled", true );
                     
                     $.ajax({
-                        url: "{{ route('user.store') }}",
+                        url: "{{ route('user.update',$id) }}",
                         type:"POST",
-                        data: formData,
+                        data:formData,
                         processData: false,
                                 contentType: false,
                                 cache: false,
@@ -106,7 +107,7 @@
                             {
                                 Swal.fire({
                                     icon: 'success',
-                                    title: 'Created Successfully',
+                                    title: 'Updated Successfully',
                                     confirmButtonText: 'Ok',
                                     }).then((result) => {
                                     /* Read more about isConfirmed, isDenied below */
@@ -202,12 +203,12 @@
   if($('#datePickerMember').length) {
     var date = new Date();
     var today = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    $('#datePickerMember').datepicker({
-      format: "mm/dd/yyyy",
+    $('.datepicker').datepicker({
+      format: "dd/mm/yyyy",
       todayHighlight: true,
       autoclose: true
     });
-    $('#datePickerMember').datepicker('setDate', today);
+    // $('#datePickerMember').datepicker('setDate', today);
   }
 
 });
@@ -231,7 +232,7 @@ function errorsGet(errors) {
         }
     }
 }
-  $(document).on('keypress','#phone',function(e){
+$(document).on('keypress','#phone',function(e){
     if($(e.target).prop('value').length>=11){
       if(e.keyCode!=32)
         {return false} 

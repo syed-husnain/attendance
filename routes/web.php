@@ -52,6 +52,7 @@ Route::middleware(['user_auth'])->group(function () {
         Route::post('/status', 'HolidayController@status')->name('status');
     });
     Route::resource('holiday', 'HolidayController');
+    Route::resource('salary', 'SalaryController');
 
 
 });

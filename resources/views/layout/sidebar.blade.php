@@ -72,7 +72,7 @@
       </li>
       <li class="nav-item {{ active_class(['attendance/*']) }}">
         <a class="nav-link" data-bs-toggle="collapse" href="#attendances" role="button" aria-expanded="{{ is_active_route(['attendance/*']) }}" aria-controls="attendances">
-          <i class="link-icon" data-feather="users"></i>
+          <i class="link-icon" data-feather="user-check"></i>
           <span class="link-title">Attendance</span>
           <i class="link-arrow" data-feather="chevron-down"></i>
         </a>
@@ -89,7 +89,7 @@
       </li>
       <li class="nav-item {{ active_class(['holiday/*']) }}">
         <a class="nav-link" data-bs-toggle="collapse" href="#holidays" role="button" aria-expanded="{{ is_active_route(['holiday/*']) }}" aria-controls="holidays">
-          <i class="link-icon" data-feather="settings"></i>
+          <i class="link-icon" data-feather="key"></i>
           <span class="link-title">Manage Holidays</span>
           <i class="link-arrow" data-feather="chevron-down"></i>
         </a>
@@ -101,6 +101,23 @@
             <li class="nav-item">
               <a href="{{ route('holiday.index') }}" class="nav-link {{ active_class(['holiday/index']) }}">List</a>
             </li>
+          </ul>
+        </div>
+      </li>
+      <li class="nav-item {{ active_class(['salary/*']) }}">
+        <a class="nav-link" data-bs-toggle="collapse" href="#salaries" role="button" aria-expanded="{{ is_active_route(['salary/*']) }}" aria-controls="salaries">
+          <i class="link-icon" data-feather="dollar-sign"></i>
+          <span class="link-title">Manage Salary</span>
+          <i class="link-arrow" data-feather="chevron-down"></i>
+        </a>
+        <div class="collapse {{ show_class(['salary*']) }}" id="salaries">
+          <ul class="nav sub-menu">
+            <li class="nav-item">
+              <a href="{{ route('salary.create') }}" class="nav-link {{ active_class(['salary/create']) }}">Add</a>
+            </li>
+            {{-- <li class="nav-item">
+              <a href="{{ route('salary.index') }}" class="nav-link {{ active_class(['salary/index']) }}">List</a>
+            </li> --}}
           </ul>
         </div>
       </li>
