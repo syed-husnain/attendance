@@ -48,6 +48,11 @@ Route::middleware(['user_auth'])->group(function () {
     });
     Route::resource('attendance', 'AttendanceController');
 
+    Route::group(['prefix' => 'holiday', 'as' => 'holiday.'], function () {
+        Route::post('/status', 'HolidayController@status')->name('status');
+    });
+    Route::resource('holiday', 'HolidayController');
+
 
 });
 

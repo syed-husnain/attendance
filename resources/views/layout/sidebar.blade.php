@@ -87,6 +87,23 @@
           </ul>
         </div>
       </li>
+      <li class="nav-item {{ active_class(['holiday/*']) }}">
+        <a class="nav-link" data-bs-toggle="collapse" href="#holidays" role="button" aria-expanded="{{ is_active_route(['holiday/*']) }}" aria-controls="holidays">
+          <i class="link-icon" data-feather="settings"></i>
+          <span class="link-title">Manage Holidays</span>
+          <i class="link-arrow" data-feather="chevron-down"></i>
+        </a>
+        <div class="collapse {{ show_class(['holiday*']) }}" id="holidays">
+          <ul class="nav sub-menu">
+            <li class="nav-item">
+              <a href="{{ route('holiday.create') }}" class="nav-link {{ active_class(['holiday/create']) }}">Add</a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ route('holiday.index') }}" class="nav-link {{ active_class(['holiday/index']) }}">List</a>
+            </li>
+          </ul>
+        </div>
+      </li>
       <li class="nav-item {{ active_class(['configuration/*']) }}">
         <a class="nav-link" data-bs-toggle="collapse" href="#configurations" role="button" aria-expanded="{{ is_active_route(['configuration/*']) }}" aria-controls="configurations">
           <i class="link-icon" data-feather="settings"></i>
