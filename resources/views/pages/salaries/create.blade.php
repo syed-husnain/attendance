@@ -57,17 +57,21 @@
         </div>
         <div class="row">
           <h4 class="card-title text-center">Review Salary</h4>
-          <div class="col-md-4">
+          <div class="col-md-3">
             <label for="working_days" class="form-label">Working Days</label>
             <input id="working_days" onkeypress="return isNumber(event)" class="form-control" name="working_days" type="text">
           </div>
-          <div class="col-md-4">
+          <div class="col-md-3">
             <label for="working_hours" class="form-label">Working Hours</label>
             <input id="working_hours" onkeypress="return isNumber(event)" class="form-control" name="working_hours" type="text">
           </div>
-          <div class="col-md-4">
-            <label for="working_hours" class="form-label">Total Late(current month)</label>
-            <input id="working_hours" onkeypress="return isNumber(event)" class="form-control" name="working_hours" type="text">
+          <div class="col-md-3">
+            <label for="late" class="form-label">Total Late(current month)</label>
+            <input id="late" onkeypress="return isNumber(event)" class="form-control" name="late" type="text">
+          </div>
+          <div class="col-md-3">
+            <label for="salary" class="form-label">Salary</label>
+            <input id="salary" onkeypress="return isNumber(event)" class="form-control" name="salary" type="text">
           </div>
         </div>
         <div class="row" style="margin-top: 12px">
@@ -266,6 +270,38 @@ function errorsGet(errors) {
 
   </script>
 
+<script>
+  $('#user_id').change(function () {
 
+          var date_range = $('#custom_date_range_input').val();
+               $.ajax({
+                url: "{{ route('salary.get-working-days') }}",
+                type: "POST",
+                dataType: "json",
+                data: {
+                    user_id: this.value,
+                    date_range: date_range,
+                    _token: "{{ csrf_token() }}",
+                },
+                success: function (response) {
+                    // $('#successMsg').show();
+                    if (response.status == 1) {
+                        $('#basic_salary').val(response.basic_salary);
+                        $('#working_days').val(response.working_days);
+                        $('#working_hours').val(response.working_hours);
+                        $('#late').val(response.total_late);
+                        $('#salary').val(response.salary);
+
+                    } else {
+                        // $('#price_after_applying_vat').html(response.message).css('color', 'red');
+
+                    }
+                },
+                error: function (response) {
+                    // console.log(response.responseJSON.errors.name+'.en'+[0]);
+                },
+            });
+        });
+</script>
 
 @endpush
