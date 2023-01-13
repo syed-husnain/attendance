@@ -54,6 +54,10 @@
               <label for="bonus" class="form-label">Bonus</label>
               <input id="bonus" onkeypress="return isNumber(event)" class="form-control" name="bonus" type="text">
             </div>
+            <div class="col-md-12 mb-3">
+            
+              <input class="btn btn-primary" style="float: right;i" id="calculate" type="button" value="Calculate Salary">
+            </div>
         </div>
         <div class="row">
           <h4 class="card-title text-center">Review Salary</h4>
@@ -302,6 +306,78 @@ function errorsGet(errors) {
                 },
             });
         });
+        $("#calculate").click(function(){
+
+          var user_id = $('#user_id').val();
+          var custom_date_range = $('#custom_date_range_input').val();
+          var travel_allowance = $('#travel_allowance').val();
+          var medical_allowance = $('#medical_allowance').val();
+          var bonus = $('#bonus').val();
+
+          let error = false;
+
+            if (user_id == "" || user_id == undefined) {
+              
+                $("#user_id").addClass("is-invalid");
+                $("#user_id").after('<span class="text-danger" role="alert">User is required</span>');
+                error = true;
+            }
+            if (custom_date_range == "" || custom_date_range == undefined) {
+              
+              $("#custom_date_range").addClass("is-invalid");
+              $("#custom_date_range").after('<span class="text-danger" role="alert">Date is required</span>');
+              error = true;
+          }if (travel_allowance == "" || travel_allowance == undefined) {
+              
+              $("#travel_allowance").addClass("is-invalid");
+              $("#travel_allowance").after('<span class="text-danger" role="alert">Travel Allowance is required</span>');
+              error = true;
+          }if (medical_allowance == "" || medical_allowance == undefined) {
+              
+              $("#medical_allowance").addClass("is-invalid");
+              $("#medical_allowance").after('<span class="text-danger" role="alert">Medical Allowance is required</span>');
+              error = true;
+          }if (bonus == "" || bonus == undefined) {
+              
+              $("#bonus").addClass("is-invalid");
+              $("#bonus").after('<span class="text-danger" role="alert">Bonus is required</span>');
+              error = true;
+          }
+          
+          if(!error){
+            $.ajax({
+                  url: "{{ route('salary.get-salary') }}",
+                  type: "POST",
+                  dataType: "json",
+                  data: {
+                      'user_id' : user_id,
+                      custom_date_range: custom_date_range,
+                      travel_allowance: travel_allowance,
+                      medical_allowance: medical_allowance,
+                      bonus: bonus,
+                      _token: "{{ csrf_token() }}",
+                  },
+                  success: function (response) {
+                      // $('#successMsg').show();
+                      if (response.status == 1) {
+                          $('#basic_salary').val(response.basic_salary);
+                          $('#working_days').val(response.working_days);
+                          $('#working_hours').val(response.working_hours);
+                          $('#late').val(response.total_late);
+                          $('#salary').val(response.salary);
+
+                      } else {
+                          // $('#price_after_applying_vat').html(response.message).css('color', 'red');
+
+                      }
+                  },
+                  error: function (response) {
+                      // console.log(response.responseJSON.errors.name+'.en'+[0]);
+                  },
+              });
+          }
+        });
+
 </script>
 
 @endpush

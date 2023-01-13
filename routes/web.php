@@ -55,6 +55,8 @@ Route::middleware(['user_auth'])->group(function () {
 
     Route::group(['prefix' => 'salary', 'as' => 'salary.'], function () {
         Route::post('/get-working-days', 'SalaryController@getWorkingDays')->name('get-working-days');
+        Route::post('/get-salary', 'SalaryController@getSalary')->name('get-salary');
+
     });
     Route::resource('salary', 'SalaryController');
 

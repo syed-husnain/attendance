@@ -126,4 +126,7 @@ class SalaryController extends Controller
             // $instance->whereBetween('created_at', [$from, $to]);
         }
     }
+    public function getSalary(Request $request){
+        dd($request->all());
+    }
 }
