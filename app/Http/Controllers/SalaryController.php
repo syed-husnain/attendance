@@ -13,6 +13,7 @@ use DataTables;
 use URL;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Validator;
 class SalaryController extends Controller
 {
     /**
@@ -127,6 +128,81 @@ class SalaryController extends Controller
         }
     }
     public function getSalary(Request $request){
-        dd($request->all());
+
+        $validator = Validator::make($request->all(), [
+            'user_id'               => 'required',
+            'travel_allowance'      => 'required|numeric|gt:0',
+            'medical_allowance'     => 'required|numeric|gt:0',
+            'bonus'                 => 'required|numeric|gt:0',
+        ]);
+
+        if ($validator->fails()) {
+            $response = [
+                "status"     => Response::HTTP_UNPROCESSABLE_ENTITY,
+                "success"    => false,
+                'error'      => true,
+                "message"    => "validation error",
+                "data"       => $validator->errors()->messages(),
+            ];
+            return response()->json($response, Response::HTTP_UNPROCESSABLE_ENTITY);
+
+        }
+
+        
+        if ($request->has('custom_date_range')) {
+
+            // calculate attendance working days
+
+            $dateRange      = explode(' - ', $request->custom_date_range);
+            $from           = date("Y-m-d", strtotime($dateRange[0]));
+            $to             = date("Y-m-d", strtotime($dateRange[1]));
+
+            $user           = User::where('id', $request->user_id)->first();
+            $attendance     = Attendance::whereBetween('due_date',[$from, $to])
+                                ->where('user_id',$request->user_id)
+                                ->selectRaw("sum(TIME_TO_SEC(TIMEDIFF(check_out,check_in) ) ) as 'total_working_seconds',
+                                            SEC_TO_TIME(sum(TIME_TO_SEC(TIMEDIFF(check_out,check_in) )) ) as 'total_working_hours',
+                                            sum(is_late) as total_late")
+                                ->first();
+            $working_days   = $attendance->total_working_seconds / (8 * 60 * 60); // according to 8 working hours
+            
+            // end calculate attendance working days
+
+            //  calculate selected date range saturdays or sundays
+                        
+            $startDate      = Carbon::parse($from);
+            $endDate        = Carbon::parse($to);
+            $saturdays      = [];
+            $sundays        = [];
+
+            while ($startDate->lte($endDate)) {
+
+                if ($startDate->isSaturday()) {
+
+                    $saturdays[] = $startDate->toDateString();
+                }
+                if($startDate->isSunday()){
+                    
+                    $sundays[] = $startDate->toDateString();
+                }
+                $startDate->addDay();
+            }
+
+            $totalSaturdays = count($saturdays);
+            $totalSundays   = count($sundays);
+
+
+            $salary = ($user->basic_salary / 30) * ($working_days + $totalSaturdays + $totalSundays);
+
+            $salaryWithAllowance = $salary + ( $request->travel_allowance ?? 0 ) + ( $medical_allowance ?? 0 ) + ( $bonus ?? 0 );
+            
+
+            return response()->json([
+                'status'                => 1,
+                'message'               => 'Success',
+                'salaryWithAllowance'   => number_format((float)$salaryWithAllowance, 2, '.', '')
+            ]);
+            
+        }
     }
 }

@@ -62,20 +62,20 @@
         <div class="row">
           <h4 class="card-title text-center">Review Salary</h4>
           <div class="col-md-3">
-            <label for="working_days" class="form-label">Working Days</label>
-            <input id="working_days" onkeypress="return isNumber(event)" class="form-control" name="working_days" type="text">
+            <label for="working_days" class="form-label">Working Days (without sat,sun)</label>
+            <input id="working_days" readonly onkeypress="return isNumber(event)" class="form-control" name="working_days" type="text">
           </div>
           <div class="col-md-3">
             <label for="working_hours" class="form-label">Working Hours</label>
-            <input id="working_hours" onkeypress="return isNumber(event)" class="form-control" name="working_hours" type="text">
+            <input id="working_hours" readonly onkeypress="return isNumber(event)" class="form-control" name="working_hours" type="text">
           </div>
           <div class="col-md-3">
             <label for="late" class="form-label">Total Late(current month)</label>
-            <input id="late" onkeypress="return isNumber(event)" class="form-control" name="late" type="text">
+            <input id="late" readonly onkeypress="return isNumber(event)" class="form-control" name="late" type="text">
           </div>
           <div class="col-md-3">
             <label for="salary" class="form-label">Salary</label>
-            <input id="salary" onkeypress="return isNumber(event)" class="form-control" name="salary" type="text">
+            <input id="salary" readonly onkeypress="return isNumber(event)" class="form-control" name="salary" type="text">
           </div>
         </div>
         <div class="row" style="margin-top: 12px">
@@ -343,7 +343,7 @@ function errorsGet(errors) {
               $("#bonus").after('<span class="text-danger" role="alert">Bonus is required</span>');
               error = true;
           }
-          
+
           if(!error){
             $.ajax({
                   url: "{{ route('salary.get-salary') }}",
@@ -360,12 +360,7 @@ function errorsGet(errors) {
                   success: function (response) {
                       // $('#successMsg').show();
                       if (response.status == 1) {
-                          $('#basic_salary').val(response.basic_salary);
-                          $('#working_days').val(response.working_days);
-                          $('#working_hours').val(response.working_hours);
-                          $('#late').val(response.total_late);
-                          $('#salary').val(response.salary);
-
+                          $('#salary').val(response.salaryWithAllowance);
                       } else {
                           // $('#price_after_applying_vat').html(response.message).css('color', 'red');
 
