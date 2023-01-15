@@ -16,15 +16,34 @@
   <div class="col-md-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
+        <div class="row" style="margin-bottom: 12px;">
+          <div class="col-md-4">
+            <label for="user" class="form-label">User</label>
+            <select class="form-select" name="user" id="user">
+              <option value="">Select Option</option>
+              @foreach ( $users as $user )
+                <option value="{{$user->id}}">{{ $user->name }}</option>
+              @endforeach
+            </select>
+          </div>
+        </div>
        <div class="table-responsive">
           <table id="user_list" class="table">
             <thead>
               <tr>
                 <th>Id</th>
                 <th>Name</th>
-                <th>Email</th>
-                <th>Status</th>
-                <th>Action</th>
+                 <th>Month</th>
+                <th>Basic Salary</th>
+               <th>Current Salary</th>
+                 <th>Travel Allowance</th>
+                <th>Medical Allowance</th>
+                <th>Bonus</th>
+                <th>Working Hours</th>
+                <th>Late</th>
+                <th>Absent</th>
+                {{-- <th>Action</th> --}}
+
               </tr>
             </thead>
             <tbody>
@@ -54,20 +73,34 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "{{ route('user.index') }}",
+                    url: "{{ route('salary.index') }}",
+                    data: function (d){
+                      d.search = $('input[type="search"]').val(),
+                      d.user = $('#user').val()
+                    }
                 },
                 order:[[0,"desc"]],
                 columns: [
                     {data: 'id', name: 'id'},
-                    {data: 'name', name: 'name'},
-                    {data: 'email', name: 'email', orderable: false, searchable: false},
-                    {data: 'status', name: 'status', orderable: false, searchable: false},
-                    {data: 'action', name: 'action', orderable: false, searchable: false},
+                    {data: 'user_id', name: 'user_id'},
+                    {data: 'created_at', name: 'created_at'},
+                    {data: 'basic_salary', name: 'basic_salary'},
+                    {data: 'salary', name: 'salary'},
+                    {data: 'travel_allowance', name: 'travel_allowance'},
+                    {data: 'medical_allowance', name: 'medical_allowance'},
+                    {data: 'bonus', name: 'bonus'},
+                    {data: 'working_hours', name: 'working_hours'},
+                    {data: 'late', name: 'late'},
+                    {data: 'absent', name: 'absent'},
+                    // {data: 'action', name: 'action', orderable: false, searchable: false},
                 ],
                 drawCallback: function (response) {
                     /*$('#countTotal').empty();
                     $('#countTotal').append(response['json'].recordsTotal);*/
                 }
+            });
+            $('input[type="search"],#user').change(function () {
+                table.draw();
             });
         });
         function deleteUser(id) {

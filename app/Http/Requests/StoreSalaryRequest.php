@@ -13,7 +13,7 @@ class StoreSalaryRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,16 @@ class StoreSalaryRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'user_id'               => 'required',
+            'basic_salary'          => 'required|numeric|gt:0',
+            'travel_allowance'      => 'required|numeric|gt:0',
+            'medical_allowance'     => 'required|numeric|gt:0',
+            'bonus'                 => 'required|numeric|gt:0',
+            'working_days'          => 'required|numeric|gt:0',
+            'working_hours'         => 'required|date_format:H:i:s',
+            'late'                  => 'required|numeric',
+            'salary'                => 'required|numeric|gt:0',
+
         ];
     }
 }

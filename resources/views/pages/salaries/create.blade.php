@@ -61,20 +61,24 @@
         </div>
         <div class="row">
           <h4 class="card-title text-center">Review Salary</h4>
-          <div class="col-md-3">
-            <label for="working_days" class="form-label">Working Days (without sat,sun)</label>
+          <div class="col-md-2">
+            <label for="working_days" class="form-label" style="font-size: 10px;">Working Days (without sat,sun)</label>
             <input id="working_days" readonly onkeypress="return isNumber(event)" class="form-control" name="working_days" type="text">
           </div>
           <div class="col-md-3">
-            <label for="working_hours" class="form-label">Working Hours</label>
+            <label for="working_hours" class="form-label" style="font-size: 10px;">Working Hours</label>
             <input id="working_hours" readonly onkeypress="return isNumber(event)" class="form-control" name="working_hours" type="text">
           </div>
-          <div class="col-md-3">
-            <label for="late" class="form-label">Total Late(current month)</label>
+          <div class="col-md-2">
+            <label for="late" class="form-label" style="font-size: 10px;">Total Late(current month)</label>
             <input id="late" readonly onkeypress="return isNumber(event)" class="form-control" name="late" type="text">
           </div>
+          <div class="col-md-2">
+            <label for="absent" class="form-label" style="font-size: 10px;">Total Absent</label>
+            <input id="absent" readonly onkeypress="return isNumber(event)" class="form-control" name="absent" type="text">
+          </div>
           <div class="col-md-3">
-            <label for="salary" class="form-label">Salary</label>
+            <label for="salary" class="form-label" style="font-size: 10px;">Salary</label>
             <input id="salary" readonly onkeypress="return isNumber(event)" class="form-control" name="salary" type="text">
           </div>
         </div>
@@ -113,49 +117,52 @@
   $.validator.setDefaults({
     submitHandler: function(form,event) {
       event.preventDefault();
-                    let formData = new FormData(document.getElementById("userForm"));
+      let formData = new FormData(document.getElementById("userForm"));
                   
-                    $( "#submit" ).prop( "disabled", true );
-                    
-                    $.ajax({
-                        url: "{{ route('user.store') }}",
-                        type:"POST",
-                        data: formData,
-                        processData: false,
-                                contentType: false,
-                                cache: false,
-                        success:function(response){
-                           
-                            // $('#successMsg').show();
-                            if(response.success)
-                            {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Created Successfully',
-                                    confirmButtonText: 'Ok',
-                                    }).then((result) => {
-                                    /* Read more about isConfirmed, isDenied below */
-                                    if (result.isConfirmed) {
-                                        window.location="{{route('user.index')}}";
-    
-                                    } else if (result.isDenied) {
-                                        Swal.fire('Changes are not saved', '', 'info')
-                                    }
-                                })
-  
-                            }
-                        },
-                        error: function(response) {
-                            $("#submit").prop("disabled", false);
-                   
-                            errorsGet(response.responseJSON.errors);
+      $( "#submit" ).prop( "disabled", true );
+      if($("#calculate").hasClass("clicked")){  
+        $.ajax({
+            url: "{{ route('salary.store') }}",
+            type:"POST",
+            data: formData,
+            processData: false,
+                    contentType: false,
+                    cache: false,
+            success:function(response){
                 
-            
-                        },
-                    });
-            
+                // $('#successMsg').show();
+                if(response.success)
+                {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Created Successfully',
+                        confirmButtonText: 'Ok',
+                        }).then((result) => {
+                        /* Read more about isConfirmed, isDenied below */
+                        if (result.isConfirmed) {
+                            window.location="{{route('user.index')}}";
 
+                        } else if (result.isDenied) {
+                            Swal.fire('Changes are not saved', '', 'info')
+                        }
+                    })
 
+                }
+            },
+            error: function(response) {
+                $("#submit").prop("disabled", false);
+        
+                errorsGet(response.responseJSON.errors);
+    
+
+            },
+        });
+      }
+      else{
+        event.preventDefault();
+        alert("Please click Calculate Salary first");
+
+      }
     }
   });
   $(function() {
@@ -268,8 +275,11 @@ function errorsGet(errors) {
           }, function(start, end, label) {
             console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
           });
-        });
+    });
 
+        $('#basic_salary,#travel_allowance,#medical_allowance,#bonus').keyup(function() {
+          $("#calculate").removeClass("clicked");
+        });
   
 
   </script>
@@ -294,6 +304,7 @@ function errorsGet(errors) {
                         $('#working_days').val(response.working_days);
                         $('#working_hours').val(response.working_hours);
                         $('#late').val(response.total_late);
+                        $('#absent').val(response.total_absent);
                         $('#salary').val(response.salary);
 
                     } else {
@@ -308,6 +319,8 @@ function errorsGet(errors) {
         });
         $("#calculate").click(function(){
 
+          $("#calculate").addClass("clicked");
+          $("#submit").prop("disabled", false);
           var user_id = $('#user_id').val();
           var custom_date_range = $('#custom_date_range_input').val();
           var travel_allowance = $('#travel_allowance').val();

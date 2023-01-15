@@ -115,9 +115,9 @@
             <li class="nav-item">
               <a href="{{ route('salary.create') }}" class="nav-link {{ active_class(['salary/create']) }}">Add</a>
             </li>
-            {{-- <li class="nav-item">
+            <li class="nav-item">
               <a href="{{ route('salary.index') }}" class="nav-link {{ active_class(['salary/index']) }}">List</a>
-            </li> --}}
+            </li>
           </ul>
         </div>
       </li>
