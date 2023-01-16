@@ -273,20 +273,15 @@ class SalaryController extends Controller
             // $totalLate = $attendance->total_late;
 
 
-            // $totalLate = 4;
+            $totalLate = 3;
             // $count = 0;
-            // $perDaySalary = number_format((float)$user->basic_salary / 30, 2, '.', '');
-            // $lateDeductionSalary = 0;
-            // if($totalLate > 3){
-            //     $remainder = $this->remainder($totalLate,$perDaySalary, 3);
-            // }
+            $perDaySalary = number_format((float)$user->basic_salary / 30, 2, '.', '');
+            $lateDeductionSalary = 0;
+            if($totalLate >= 3){
+                $lateDeductionSalary = round($perDaySalary / 2) * round($totalLate/3);
+            }
 
-        
-
-
-            // dd($perDaySalary);
-            // dd($totalLate);
-
+            $salary = $salary - $lateDeductionSalary;
 
             $salaryWithAllowance = $salary + ( $request->travel_allowance ?? 0 ) + ( $medical_allowance ?? 0 ) + ( $bonus ?? 0 );
             
