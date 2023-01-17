@@ -25,7 +25,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('attedance:cron')
-                 ->everyMinute();
+                 ->dailyAt('22:00');
     }
 
     /**
