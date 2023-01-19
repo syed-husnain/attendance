@@ -61,11 +61,17 @@ class AttendanceCronJob extends Command
 
             }
             else{
-                $attendance = Attendance::create([
-                    'user_id'   =>    $user->id,
-                    'due_date'  =>    $due_date,
-                    'status'    =>    'Absent'
-                ]);   
+
+                $today = Carbon::today();
+
+                if (!$today->isSaturday() || !$today->isSunday() ) {
+                    $attendance = Attendance::create([
+                        'user_id'   =>    $user->id,
+                        'status'    =>    'Absent'
+                    ]);  
+                }
+
+                 
             }
 
         }
