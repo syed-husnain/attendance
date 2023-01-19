@@ -28,28 +28,28 @@ class SalaryController extends Controller
             $data = Salary::latest();
             return Datatables::of($data)
                     ->addIndexColumn()
-                    ->addColumn('user_id', function($row){     
+                    ->addColumn('user_id', function($row){
                        return $row->user->name;
                     })
-                    ->addColumn('created_at', function($row){     
+                    ->addColumn('created_at', function($row){
                         return date('d M Y', strtotime($row->created_at));
                     })
                     // ->addColumn('action', function($row){
-     
+
                     //        $btn = '<a href="' . URL::route('user.edit', $row->id) . '" class="edit btn btn-primary btn-xs">Edit</a>';
                     //        $btn .= ' <a href="javascript:void(0)" onclick="deleteUser(' . $row->id . ')" class="edit btn btn-danger btn-xs">Delete</a>';
                     //        return $btn;
                     // })
                     ->filter(function ($instance) use ($request) {
-        
+
                         if ($request->has('user') && !empty($request->get('user'))) {
                             $instance->where('user_id', $request->user);
                         }
-    
+
                         if (!empty($request->get('search'))) {
                             $instance->where(function ($query) use ($request) {
                                 $search = $request->get('search');
-    
+
                                 $query->orWhereHas('user', function ($q) use ($search) {
                                     $q->where('name', 'LIKE', "%$search%");
                                 });
@@ -61,7 +61,7 @@ class SalaryController extends Controller
                     ->rawColumns(['action','user_id'])
                     ->make(true);
         }
-        
+
         return view('pages.salaries.index')->with([
             'users' => $users
         ]);;
@@ -91,7 +91,7 @@ class SalaryController extends Controller
         $dateRange = explode(' - ', $request->custom_date_range_input);
         $request['from_date']   = date("Y-m-d", strtotime($dateRange[0]));
         $request['to_date']     = date("Y-m-d", strtotime($dateRange[1]));
-    
+
         $alreadyExsist = Salary::where('user_id',$request->user_id)
                         ->where(\DB::raw('DATE_FORMAT(from_date,"%Y-%m")'), date("Y-m", strtotime($dateRange[0])))
                         ->first();
@@ -104,7 +104,7 @@ class SalaryController extends Controller
                 'message'       => "You have already calculate salary in this month.",
             ]);
         }
-        
+
         $salary = Salary::create($request->all());
         return response()->json([
             'status_code' => Response::HTTP_OK,
@@ -114,7 +114,7 @@ class SalaryController extends Controller
             'message'     => 'Created Successfully'
         ]);
 
-       
+
     }
 
     /**
@@ -183,7 +183,7 @@ class SalaryController extends Controller
             ->where('user_id',$request->user_id)
             ->where('status','Absent')
             ->count();
-            
+
 
             $working_days = $attendance->total_working_seconds / (8 * 60 * 60); // according to 8 working hours
 
@@ -222,7 +222,7 @@ class SalaryController extends Controller
 
         }
 
-        
+
         if ($request->has('custom_date_range')) {
 
             // calculate attendance working days
@@ -238,61 +238,69 @@ class SalaryController extends Controller
                                             SEC_TO_TIME(sum(TIME_TO_SEC(TIMEDIFF(check_out,check_in) )) ) as 'total_working_hours',
                                             sum(is_late) as total_late")
                                 ->first();
+
             $working_days   = $attendance->total_working_seconds / (8 * 60 * 60); // according to 8 working hours
-            
+
             // end calculate attendance working days
 
             //  calculate selected date range saturdays or sundays
-                        
+
             $startDate      = Carbon::parse($from);
             $endDate        = Carbon::parse($to);
             $saturdays      = [];
             $sundays        = [];
+            if($working_days > 0){
+                while ($startDate->lte($endDate)) {
 
-            while ($startDate->lte($endDate)) {
+                    if ($startDate->isSaturday()) {
 
-                if ($startDate->isSaturday()) {
+                        $saturdays[] = $startDate->toDateString();
+                    }
+                    if($startDate->isSunday()){
 
-                    $saturdays[] = $startDate->toDateString();
+                        $sundays[] = $startDate->toDateString();
+                    }
+                    $startDate->addDay();
                 }
-                if($startDate->isSunday()){
-                    
-                    $sundays[] = $startDate->toDateString();
+
+                $totalSaturdays = count($saturdays);
+                $totalSundays   = count($sundays);
+
+
+                $salary = ($user->basic_salary / 30) * ($working_days + $totalSaturdays + $totalSundays);
+
+
+                // late salary deduction calculation
+                // $totalLate = $attendance->total_late;
+
+
+                $totalLate = 3;
+                // $count = 0;
+                $perDaySalary = number_format((float)$user->basic_salary / 30, 2, '.', '');
+                $lateDeductionSalary = 0;
+                if($totalLate >= 3){
+                    $lateDeductionSalary = round($perDaySalary / 2) * round($totalLate/3);
                 }
-                $startDate->addDay();
+
+                $salary = $salary - $lateDeductionSalary;
+
+                $salaryWithAllowance = $salary + ( $request->travel_allowance ?? 0 ) + ( $medical_allowance ?? 0 ) + ( $bonus ?? 0 );
+
+
+                return response()->json([
+                    'status'                => 1,
+                    'message'               => 'Success',
+                    'salaryWithAllowance'   => number_format((float)$salaryWithAllowance, 2, '.', '')
+                ]);
+            }else{
+                return response()->json([
+                    'status'                => 1,
+                    'message'               => 'Success',
+                    'salaryWithAllowance'   => 0
+                ]);
             }
 
-            $totalSaturdays = count($saturdays);
-            $totalSundays   = count($sundays);
-
-
-            $salary = ($user->basic_salary / 30) * ($working_days + $totalSaturdays + $totalSundays);
-
-
-            // late salary deduction calculation
-            // $totalLate = $attendance->total_late;
-
-
-            $totalLate = 3;
-            // $count = 0;
-            $perDaySalary = number_format((float)$user->basic_salary / 30, 2, '.', '');
-            $lateDeductionSalary = 0;
-            if($totalLate >= 3){
-                $lateDeductionSalary = round($perDaySalary / 2) * round($totalLate/3);
-            }
-
-            $salary = $salary - $lateDeductionSalary;
-
-            $salaryWithAllowance = $salary + ( $request->travel_allowance ?? 0 ) + ( $medical_allowance ?? 0 ) + ( $bonus ?? 0 );
-            
-
-            return response()->json([
-                'status'                => 1,
-                'message'               => 'Success',
-                'salaryWithAllowance'   => number_format((float)$salaryWithAllowance, 2, '.', '')
-            ]);
-            
         }
     }
- 
+
 }
