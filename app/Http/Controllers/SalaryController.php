@@ -172,31 +172,39 @@ class SalaryController extends Controller
             $to = date("Y-m-d", strtotime($dateRange[1]));
 
             $user = User::where('id', $request->user_id)->first();
-            $attendance = Attendance::whereBetween('due_date',[$from, $to])
-            ->where('user_id',$request->user_id)
-            ->selectRaw("sum(TIME_TO_SEC(TIMEDIFF(check_out,check_in) ) ) as 'total_working_seconds',
-                        SEC_TO_TIME(sum(TIME_TO_SEC(TIMEDIFF(check_out,check_in) )) ) as 'total_working_hours',
-                        sum(is_late) as total_late")
-            ->first();
+
+            // get full status attendance
+            $attendance  = getFullStatusAttendance($request->user_id, $from, $to);
+            
+            // get attendance for status reduced
+            $reducedAttendance  = getReducedStatusAttendance($user, $from, $to);
+          
+            // get days from date range picker
+            $start_date = Carbon::parse($from);
+            $end_date = Carbon::parse($to);
+            $selectionDays = $start_date->diffInDays($end_date) + 1;
+
+            //  end
 
             $totalAbsents = Attendance::whereBetween('due_date',[$from, $to])
             ->where('user_id',$request->user_id)
             ->where('status','Absent')
             ->count();
+            
+            // dd($reducedAttendance);
 
-
-            $working_days = $attendance->total_working_seconds / (8 * 60 * 60); // according to 8 working hours
-
-            $salary = ($user->basic_salary / 30) * $working_days;
+            $working_days = $attendance->total_working_seconds / (9 * 60 * 60); // according to 9 working hours
+            
+            $salary = ($user->basic_salary / $selectionDays) *  $attendance->totalDays; // comes from helper query
             return response()->json([
                 'status' => 1,
                 'message' => 'Success',
                 'basic_salary' => $user->basic_salary,
-                'working_hours' => $attendance->total_working_hours,
-                'working_days' => number_format((float)$working_days, 2, '.', ''),
-                'total_late' => $attendance->total_late,
-                'total_absent' => $totalAbsents,
-                'salary' => number_format((float)$salary, 2, '.', '')
+                'working_hours' => (float)$attendance->total_working_hours + (float)$reducedAttendance['total_reduced_working_hours'],
+                'working_days' => number_format((float)$working_days, 2, '.', '') + $reducedAttendance['reduced_working_days'],
+                'total_late' => ($attendance->total_late ?? 0) + ($reducedAttendance['$reduced_late'] ?? 0) ,
+                'total_absent' => $totalAbsents ?? 0,
+                'salary' => number_format((float)$salary, 2, '.', '') + $reducedAttendance['reduced_salary']
             ]);
             // $instance->whereBetween('created_at', [$from, $to]);
         }
@@ -239,7 +247,7 @@ class SalaryController extends Controller
                                             sum(is_late) as total_late")
                                 ->first();
 
-            $working_days   = $attendance->total_working_seconds / (8 * 60 * 60); // according to 8 working hours
+            $working_days   = $attendance->total_working_seconds / (9 * 60 * 60); // according to 9 working hours
 
             // end calculate attendance working days
 
