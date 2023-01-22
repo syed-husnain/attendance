@@ -167,9 +167,9 @@ class SalaryController extends Controller
 
         if ($request->has('date_range')) {
 
-            $dateRange = explode(' - ', $request->date_range);
-            $from = date("Y-m-d", strtotime($dateRange[0]));
-            $to = date("Y-m-d", strtotime($dateRange[1]));
+            $dateRange      = explode(' - ', $request->date_range);
+            $from           = date("Y-m-d", strtotime($dateRange[0]));
+            $to             = date("Y-m-d", strtotime($dateRange[1]));
 
             $user = User::where('id', $request->user_id)->first();
 
@@ -180,9 +180,9 @@ class SalaryController extends Controller
             $reducedAttendance  = getReducedStatusAttendance($user, $from, $to);
           
             // get days from date range picker
-            $start_date = Carbon::parse($from);
-            $end_date = Carbon::parse($to);
-            $selectionDays = $start_date->diffInDays($end_date) + 1;
+            $start_date     = Carbon::parse($from);
+            $end_date       = Carbon::parse($to);
+            $selectionDays  = $start_date->diffInDays($end_date) + 1;
             //  end
 
             // get date range saturday sunday
@@ -205,35 +205,35 @@ class SalaryController extends Controller
             $salary = ($user->basic_salary / $selectionDays) *  $attendance->totalDays; // comes from helper query
 
             //sum two time that comes from full and reduced
-            $time = $attendance->total_working_hours;
-            $time2 = $reducedAttendance['time_hours_with_minutes'];
-            $secs = strtotime($time2)-strtotime("00:00:00");
-            $result = date("H:i:s",strtotime($time)+$secs);
+            $time       = $attendance->total_working_hours;
+            $time2      = $reducedAttendance['time_hours_with_minutes'];
+            $secs       = strtotime($time2)-strtotime("00:00:00");
+            $result     = date("H:i:s",strtotime($time)+$secs);
 
             if(!empty($request->is_request)){
 
                 return [
-                    'status' => 1,
-                    'message' => 'Success',
-                    'basic_salary' => $user->basic_salary,
-                    'working_hours' => $result,
-                    'working_days' => number_format((float)$working_days, 2, '.', '') + $reducedAttendance['reduced_working_days'],
-                    'total_late' => ($attendance->total_late ?? 0) + ($reducedAttendance['$reduced_late'] ?? 0) ,
-                    'total_absent' => $totalAbsents ?? 0,
-                    'salary' => (number_format((float)$salary, 2, '.', '') + $reducedAttendance['reduced_salary'] + number_format((float)$satSunSalary, 2, '.', '')) - number_format((float)$absentSalaryDeduction, 2, '.', '')
+                    'status'            => 1,
+                    'message'           => 'Success',
+                    'basic_salary'      => $user->basic_salary,
+                    'working_hours'     => $result,
+                    'working_days'      => number_format((float)$working_days, 2, '.', '') + $reducedAttendance['reduced_working_days'],
+                    'total_late'        => ($attendance->total_late ?? 0) + ($reducedAttendance['$reduced_late'] ?? 0) ,
+                    'total_absent'      => $totalAbsents ?? 0,
+                    'salary'            => (number_format((float)$salary, 2, '.', '') + $reducedAttendance['reduced_salary'] + number_format((float)$satSunSalary, 2, '.', '')) - number_format((float)$absentSalaryDeduction, 2, '.', '')
           
                 ];
             }
            
             return response()->json([
-                'status' => 1,
-                'message' => 'Success',
-                'basic_salary' => $user->basic_salary,
-                'working_hours' => $result,
-                'working_days' => number_format((float)$working_days, 2, '.', '') + $reducedAttendance['reduced_working_days'],
-                'total_late' => ($attendance->total_late ?? 0) + ($reducedAttendance['$reduced_late'] ?? 0) ,
-                'total_absent' => $totalAbsents ?? 0,
-                'salary' => (number_format((float)$salary, 2, '.', '') + $reducedAttendance['reduced_salary'] + number_format((float)$satSunSalary, 2, '.', '')) - number_format((float)$absentSalaryDeduction, 2, '.', '')
+                'status'                => 1,
+                'message'               => 'Success',
+                'basic_salary'          => $user->basic_salary,
+                'working_hours'         => $result,
+                'working_days'          => number_format((float)$working_days, 2, '.', '') + $reducedAttendance['reduced_working_days'],
+                'total_late'            => ($attendance->total_late ?? 0) + ($reducedAttendance['$reduced_late'] ?? 0) ,
+                'total_absent'          => $totalAbsents ?? 0,
+                'salary'                => (number_format((float)$salary, 2, '.', '') + $reducedAttendance['reduced_salary'] + number_format((float)$satSunSalary, 2, '.', '')) - number_format((float)$absentSalaryDeduction, 2, '.', '')
             ]);
             // $instance->whereBetween('created_at', [$from, $to]);
         }
