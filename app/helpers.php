@@ -43,6 +43,7 @@ function getReducedStatusAttendance($user, $fromDate, $toDate){
  
   $salary = 0;
   $total_reduced_working_hours = 0;
+  $total_reduced_working_minutes = 0;
   $reduced_working_days = 0;
   $reduced_late = 0;
   foreach($reducedAttendance as $attendance){
@@ -56,6 +57,7 @@ function getReducedStatusAttendance($user, $fromDate, $toDate){
     $working_seconds = $end_time->diffInSeconds($start_time);
     $working_hours = $working_minutes / 60;
 
+   
     $config = Config::first();
     $office_start_time = Carbon::createFromFormat('H:i:s', $config->start_time);
     $office_end_time = Carbon::createFromFormat('H:i:s', $config->end_time);
@@ -64,6 +66,7 @@ function getReducedStatusAttendance($user, $fromDate, $toDate){
    
 
     $total_reduced_working_hours += $working_hours;
+    $total_reduced_working_minutes += $working_minutes;
     $reduced_working_days += $working_seconds / (9 * 60 * 60);
     
     $perDaySaary = number_format((float)$user->basic_salary / getDaysFromDateRange($fromDate,$toDate), 2, '.', '');
@@ -81,9 +84,13 @@ function getReducedStatusAttendance($user, $fromDate, $toDate){
 
   }
 
+  $time_hours_with_minutes = gmdate('H:i:s', $total_reduced_working_minutes * 60); // output: 08:00:00
+  
+
   $data['reduced_salary'] = number_format((float)$salary ?? 0.00, 2, '.', '');
   $data['total_reduced_working_hours'] = number_format((float)$total_reduced_working_hours ?? 0.00, 2, '.', '');
   $data['reduced_working_days'] = number_format((float)$reduced_working_days?? 0.00, 2, '.', '');
+  $data['time_hours_with_minutes'] = $time_hours_with_minutes ?? '00:00:00';
   $data['reduced_late'] = $reduced_late;
 
   
@@ -96,4 +103,34 @@ function getDaysFromDateRange($from,$to){
    $end_date = Carbon::parse($to);
    $selectionDays = $start_date->diffInDays($end_date) + 1;
    return $selectionDays;
+}
+
+function getTotalSatSun($from,$to){
+
+  $startDate      = Carbon::parse($from);
+  $endDate        = Carbon::parse($to);
+  $saturdays      = [];
+  $sundays        = [];
+  $data           = [];
+  while ($startDate->lte($endDate)) {
+
+    if ($startDate->isSaturday()) {
+
+        $saturdays[] = $startDate->toDateString();
+    }
+    if($startDate->isSunday()){
+
+        $sundays[] = $startDate->toDateString();
+    }
+    $startDate->addDay();
+  }
+
+  $totalSaturdays = count($saturdays);
+  $totalSundays   = count($sundays);
+
+  return $data =[
+    'saturdays' => $totalSaturdays,
+    'sundays'   => $totalSundays
+  ];
+
 }

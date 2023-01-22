@@ -183,39 +183,68 @@ class SalaryController extends Controller
             $start_date = Carbon::parse($from);
             $end_date = Carbon::parse($to);
             $selectionDays = $start_date->diffInDays($end_date) + 1;
-
             //  end
+
+            // get date range saturday sunday
+            $totalSatSun = getTotalSatSun($from, $to);
+
+            $satSunSalary = ($user->basic_salary / $selectionDays) * $totalSatSun['saturdays'] + $totalSatSun['sundays'];
+            
+            // dd($user->basic_salary / $selectionDays,$totalSatSun['saturdays'] + $totalSatSun['sundays']);
+            // end
 
             $totalAbsents = Attendance::whereBetween('due_date',[$from, $to])
             ->where('user_id',$request->user_id)
             ->where('status','Absent')
             ->count();
             
-            // dd($reducedAttendance);
+            $absentSalaryDeduction = ($user->basic_salary / $selectionDays) * $totalAbsents;
 
             $working_days = $attendance->total_working_seconds / (9 * 60 * 60); // according to 9 working hours
-            
+
             $salary = ($user->basic_salary / $selectionDays) *  $attendance->totalDays; // comes from helper query
+
+            //sum two time that comes from full and reduced
+            $time = $attendance->total_working_hours;
+            $time2 = $reducedAttendance['time_hours_with_minutes'];
+            $secs = strtotime($time2)-strtotime("00:00:00");
+            $result = date("H:i:s",strtotime($time)+$secs);
+
+            if(!empty($request->is_request)){
+
+                return [
+                    'status' => 1,
+                    'message' => 'Success',
+                    'basic_salary' => $user->basic_salary,
+                    'working_hours' => $result,
+                    'working_days' => number_format((float)$working_days, 2, '.', '') + $reducedAttendance['reduced_working_days'],
+                    'total_late' => ($attendance->total_late ?? 0) + ($reducedAttendance['$reduced_late'] ?? 0) ,
+                    'total_absent' => $totalAbsents ?? 0,
+                    'salary' => (number_format((float)$salary, 2, '.', '') + $reducedAttendance['reduced_salary'] + number_format((float)$satSunSalary, 2, '.', '')) - number_format((float)$absentSalaryDeduction, 2, '.', '')
+          
+                ];
+            }
+           
             return response()->json([
                 'status' => 1,
                 'message' => 'Success',
                 'basic_salary' => $user->basic_salary,
-                'working_hours' => (float)$attendance->total_working_hours + (float)$reducedAttendance['total_reduced_working_hours'],
+                'working_hours' => $result,
                 'working_days' => number_format((float)$working_days, 2, '.', '') + $reducedAttendance['reduced_working_days'],
                 'total_late' => ($attendance->total_late ?? 0) + ($reducedAttendance['$reduced_late'] ?? 0) ,
                 'total_absent' => $totalAbsents ?? 0,
-                'salary' => number_format((float)$salary, 2, '.', '') + $reducedAttendance['reduced_salary']
+                'salary' => (number_format((float)$salary, 2, '.', '') + $reducedAttendance['reduced_salary'] + number_format((float)$satSunSalary, 2, '.', '')) - number_format((float)$absentSalaryDeduction, 2, '.', '')
             ]);
             // $instance->whereBetween('created_at', [$from, $to]);
         }
     }
     public function getSalary(Request $request){
-
+        // dd($request->all());
         $validator = Validator::make($request->all(), [
             'user_id'               => 'required',
-            'travel_allowance'      => 'required|numeric|gt:0',
-            'medical_allowance'     => 'required|numeric|gt:0',
-            'bonus'                 => 'required|numeric|gt:0',
+            'travel_allowance'      => 'required|numeric|gte:0',
+            'medical_allowance'     => 'required|numeric|gte:0',
+            'bonus'                 => 'required|numeric|gte:0',
         ]);
 
         if ($validator->fails()) {
@@ -234,12 +263,35 @@ class SalaryController extends Controller
         if ($request->has('custom_date_range')) {
 
             // calculate attendance working days
+            $custom_date_range  = $request->custom_date_range;
+            $travelAllowance    = $request->travel_allowance;
+            $medicalAllowance   = $request->medical_allowance;
+            $bonus              = $request->bonus;
+            $dateRange          = explode(' - ', $request->custom_date_range);
+            $from               = date("Y-m-d", strtotime($dateRange[0]));
+            $to                 = date("Y-m-d", strtotime($dateRange[1]));
 
-            $dateRange      = explode(' - ', $request->custom_date_range);
-            $from           = date("Y-m-d", strtotime($dateRange[0]));
-            $to             = date("Y-m-d", strtotime($dateRange[1]));
 
-            $user           = User::where('id', $request->user_id)->first();
+            // get days from date range picker
+            $start_date         = Carbon::parse($from);
+            $end_date           = Carbon::parse($to);
+            $selectionDays      = $start_date->diffInDays($end_date) + 1;
+
+            $user               = User::where('id', $request->user_id)->first();
+
+            $request = new Request();
+
+            $data = [
+                'user_id' => $user->id,
+                'date_range' => $custom_date_range,
+                'is_request' => 1
+            ];
+    
+    
+            $request->query->add($data);
+            $result = $this->getWorkingDays($request);
+
+
             $attendance     = Attendance::whereBetween('due_date',[$from, $to])
                                 ->where('user_id',$request->user_id)
                                 ->selectRaw("sum(TIME_TO_SEC(TIMEDIFF(check_out,check_in) ) ) as 'total_working_seconds',
@@ -247,44 +299,27 @@ class SalaryController extends Controller
                                             sum(is_late) as total_late")
                                 ->first();
 
-            $working_days   = $attendance->total_working_seconds / (9 * 60 * 60); // according to 9 working hours
+            // $working_days   = $attendance->total_working_seconds / (9 * 60 * 60); // according to 9 working hours
 
             // end calculate attendance working days
 
             //  calculate selected date range saturdays or sundays
 
-            $startDate      = Carbon::parse($from);
-            $endDate        = Carbon::parse($to);
-            $saturdays      = [];
-            $sundays        = [];
-            if($working_days > 0){
-                while ($startDate->lte($endDate)) {
+          
+            if(1==1){
+               
 
-                    if ($startDate->isSaturday()) {
+               
+                $salary = $result['salary'] ?? 0.00;
 
-                        $saturdays[] = $startDate->toDateString();
-                    }
-                    if($startDate->isSunday()){
-
-                        $sundays[] = $startDate->toDateString();
-                    }
-                    $startDate->addDay();
-                }
-
-                $totalSaturdays = count($saturdays);
-                $totalSundays   = count($sundays);
-
-
-                $salary = ($user->basic_salary / 30) * ($working_days + $totalSaturdays + $totalSundays);
-
-
+                // dd($salary,$request->travel_allowance);
                 // late salary deduction calculation
-                // $totalLate = $attendance->total_late;
+                $totalLate = $attendance->total_late;
 
 
-                $totalLate = 3;
+                // $totalLate = 3;
                 // $count = 0;
-                $perDaySalary = number_format((float)$user->basic_salary / 30, 2, '.', '');
+                $perDaySalary = number_format((float)$user->basic_salary / $selectionDays, 2, '.', '');
                 $lateDeductionSalary = 0;
                 if($totalLate >= 3){
                     $lateDeductionSalary = round($perDaySalary / 2) * round($totalLate/3);
@@ -292,7 +327,7 @@ class SalaryController extends Controller
 
                 $salary = $salary - $lateDeductionSalary;
 
-                $salaryWithAllowance = $salary + ( $request->travel_allowance ?? 0 ) + ( $medical_allowance ?? 0 ) + ( $bonus ?? 0 );
+                $salaryWithAllowance = $salary + ( $travelAllowance ?? 0 ) + ( $medicalAllowance ?? 0 ) + ( $bonus ?? 0 );
 
 
                 return response()->json([

@@ -325,7 +325,9 @@ function errorsGet(errors) {
           var custom_date_range = $('#custom_date_range_input').val();
           var travel_allowance = $('#travel_allowance').val();
           var medical_allowance = $('#medical_allowance').val();
+          var late = $('#late').val();
           var bonus = $('#bonus').val();
+          var salary = $('#salary').val();
 
           let error = false;
 
@@ -367,7 +369,9 @@ function errorsGet(errors) {
                       custom_date_range: custom_date_range,
                       travel_allowance: travel_allowance,
                       medical_allowance: medical_allowance,
+                      late: late,
                       bonus: bonus,
+                      // salary: salary,
                       _token: "{{ csrf_token() }}",
                   },
                   success: function (response) {
