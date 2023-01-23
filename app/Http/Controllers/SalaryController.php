@@ -175,10 +175,10 @@ class SalaryController extends Controller
 
             // get full status attendance
             $attendance  = getFullStatusAttendance($request->user_id, $from, $to);
-            
+
             // get attendance for status reduced
             $reducedAttendance  = getReducedStatusAttendance($user, $from, $to);
-          
+
             // get days from date range picker
             $start_date     = Carbon::parse($from);
             $end_date       = Carbon::parse($to);
@@ -189,7 +189,7 @@ class SalaryController extends Controller
             $totalSatSun = getTotalSatSun($from, $to);
 
             $satSunSalary = ($user->basic_salary / $selectionDays) * $totalSatSun['saturdays'] + $totalSatSun['sundays'];
-            
+
             // dd($user->basic_salary / $selectionDays,$totalSatSun['saturdays'] + $totalSatSun['sundays']);
             // end
 
@@ -197,7 +197,7 @@ class SalaryController extends Controller
             ->where('user_id',$request->user_id)
             ->where('status','Absent')
             ->count();
-            
+
             $absentSalaryDeduction = ($user->basic_salary / $selectionDays) * $totalAbsents;
 
             $working_days = $attendance->total_working_seconds / (9 * 60 * 60); // according to 9 working hours
@@ -205,10 +205,14 @@ class SalaryController extends Controller
             $salary = ($user->basic_salary / $selectionDays) *  $attendance->totalDays; // comes from helper query
 
             //sum two time that comes from full and reduced
+            date_default_timezone_set('Asia/Karachi');
             $time       = $attendance->total_working_hours;
             $time2      = $reducedAttendance['time_hours_with_minutes'];
             $secs       = strtotime($time2)-strtotime("00:00:00");
+
             $result     = date("H:i:s",strtotime($time)+$secs);
+
+            $result = sum_the_time($time,$reducedAttendance['time_hours_with_minutes']);
 
             if(!empty($request->is_request)){
 
@@ -221,10 +225,10 @@ class SalaryController extends Controller
                     'total_late'        => ($attendance->total_late ?? 0) + ($reducedAttendance['$reduced_late'] ?? 0) ,
                     'total_absent'      => $totalAbsents ?? 0,
                     'salary'            => (number_format((float)$salary, 2, '.', '') + $reducedAttendance['reduced_salary'] + number_format((float)$satSunSalary, 2, '.', '')) - number_format((float)$absentSalaryDeduction, 2, '.', '')
-          
+
                 ];
             }
-           
+
             return response()->json([
                 'status'                => 1,
                 'message'               => 'Success',
@@ -286,8 +290,8 @@ class SalaryController extends Controller
                 'date_range' => $custom_date_range,
                 'is_request' => 1
             ];
-    
-    
+
+
             $request->query->add($data);
             $result = $this->getWorkingDays($request);
 
@@ -305,11 +309,11 @@ class SalaryController extends Controller
 
             //  calculate selected date range saturdays or sundays
 
-          
-            if(1==1){
-               
 
-               
+            if(1==1){
+
+
+
                 $salary = $result['salary'] ?? 0.00;
 
                 // dd($salary,$request->travel_allowance);
