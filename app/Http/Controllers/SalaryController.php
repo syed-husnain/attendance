@@ -271,10 +271,10 @@ class SalaryController extends Controller
 
 
                 // late salary deduction calculation
-                // $totalLate = $attendance->total_late;
+                $totalLate = $attendance->total_late;
 
 
-                $totalLate = 3;
+                // $totalLate = 3;
                 // $count = 0;
                 $perDaySalary = number_format((float)$user->basic_salary / 30, 2, '.', '');
                 $lateDeductionSalary = 0;
