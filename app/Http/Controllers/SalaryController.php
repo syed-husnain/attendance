@@ -188,7 +188,7 @@ class SalaryController extends Controller
             // get date range saturday sunday
             $totalSatSun = getTotalSatSun($from, $to);
 
-            $satSunSalary = ($user->basic_salary / $selectionDays) * $totalSatSun['saturdays'] + $totalSatSun['sundays'];
+            $satSunSalary = ($user->basic_salary / $selectionDays) * ($totalSatSun['saturdays'] + $totalSatSun['sundays']);
 
             // dd($user->basic_salary / $selectionDays,$totalSatSun['saturdays'] + $totalSatSun['sundays']);
             // end
@@ -203,7 +203,7 @@ class SalaryController extends Controller
             $working_days = $attendance->total_working_seconds / (9 * 60 * 60); // according to 9 working hours
 
             $salary = ($user->basic_salary / $selectionDays) *  $attendance->totalDays; // comes from helper query
-
+// dd($salary,$reducedAttendance['reduced_salary'],$satSunSalary,$totalSatSun);
             //sum two time that comes from full and reduced
             date_default_timezone_set('Asia/Karachi');
             $time       = $attendance->total_working_hours;
@@ -222,9 +222,10 @@ class SalaryController extends Controller
                     'basic_salary'      => $user->basic_salary,
                     'working_hours'     => $result,
                     'working_days'      => number_format((float)$working_days, 2, '.', '') + $reducedAttendance['reduced_working_days'],
-                    'total_late'        => ($attendance->total_late ?? 0) + ($reducedAttendance['$reduced_late'] ?? 0) ,
+                    'total_late'        => ($attendance->total_late ?? 0) + ($reducedAttendance['reduced_late'] ?? 0) ,
                     'total_absent'      => $totalAbsents ?? 0,
-                    'salary'            => (number_format((float)$salary, 2, '.', '') + $reducedAttendance['reduced_salary'] + number_format((float)$satSunSalary, 2, '.', '')) - number_format((float)$absentSalaryDeduction, 2, '.', '')
+                    // 'salary'            => (number_format((float)$salary, 2, '.', '') + $reducedAttendance['reduced_salary'] + number_format((float)$satSunSalary, 2, '.', '')) - number_format((float)$absentSalaryDeduction, 2, '.', '')
+                    'salary'            => number_format((float)$salary, 2, '.', '') + $reducedAttendance['reduced_salary'] + number_format((float)$satSunSalary, 2, '.', '')
 
                 ];
             }
@@ -237,7 +238,8 @@ class SalaryController extends Controller
                 'working_days'          => number_format((float)$working_days, 2, '.', '') + $reducedAttendance['reduced_working_days'],
                 'total_late'            => ($attendance->total_late ?? 0) + ($reducedAttendance['$reduced_late'] ?? 0) ,
                 'total_absent'          => $totalAbsents ?? 0,
-                'salary'                => (number_format((float)$salary, 2, '.', '') + $reducedAttendance['reduced_salary'] + number_format((float)$satSunSalary, 2, '.', '')) - number_format((float)$absentSalaryDeduction, 2, '.', '')
+                // 'salary'                => (number_format((float)$salary, 2, '.', '') + $reducedAttendance['reduced_salary'] + number_format((float)$satSunSalary, 2, '.', '')) - number_format((float)$absentSalaryDeduction, 2, '.', '')
+                'salary'                => number_format((float)$salary, 2, '.', '') + $reducedAttendance['reduced_salary'] + number_format((float)$satSunSalary, 2, '.', '')
             ]);
             // $instance->whereBetween('created_at', [$from, $to]);
         }
@@ -274,7 +276,6 @@ class SalaryController extends Controller
             $dateRange          = explode(' - ', $request->custom_date_range);
             $from               = date("Y-m-d", strtotime($dateRange[0]));
             $to                 = date("Y-m-d", strtotime($dateRange[1]));
-
 
             // get days from date range picker
             $start_date         = Carbon::parse($from);
