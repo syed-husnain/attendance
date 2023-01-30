@@ -12,7 +12,7 @@ use App\Models\User;
 class AuthController extends Controller
 {
     public function register(Request $request)
-    {   
+    {
         // dd($request->all());
         $user = User::create([
             'name' => $request->name,
@@ -34,7 +34,7 @@ class AuthController extends Controller
     }
     public function login(Request $request)
     {
-        
+
         $validator = Validator::make($request->all(), [
             'email'         => 'required|string|email|max:255',
             'password'      => 'required|string|min:8',
@@ -57,6 +57,7 @@ class AuthController extends Controller
                     'password'      => $request->password
                 ];
                 if(auth()->attempt($data)){
+
                    $token =  auth()->user()->createToken('Token')->accessToken;
                    $response = [
                         'status'    => Response::HTTP_OK,
