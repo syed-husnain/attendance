@@ -49,7 +49,7 @@ class AttendanceCronJob extends Command
         $due_date     =  Carbon::today()->toDateString();
         $current_time =  Carbon::now()->format('H:i');
 
-        
+
         foreach( $users as $user ){
 
             $attendance =  Attendance::where('user_id',$user->id)->where('due_date',$due_date)->first();
@@ -64,17 +64,17 @@ class AttendanceCronJob extends Command
 
                 $today = Carbon::today();
 
-                if (!$today->isSaturday() || !$today->isSunday() ) {
+                if (!($today->isSaturday()) && !($today->isSunday()) ) {
                     $attendance = Attendance::create([
                         'user_id'   =>    $user->id,
                         'due_date'  =>    Carbon::today()->toDateString(),
                         'check_in'  =>    null,
                         'check_out' =>    null,
                         'status'    =>    'Absent'
-                    ]);  
+                    ]);
                 }
 
-                 
+
             }
 
         }
