@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Attendance;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
@@ -165,15 +166,27 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        $user = User::find($id)->delete();
+        $user = User::find($id);
+
         if($user)
         {
-            return response()->json([
-                'status_code' => Response::HTTP_OK,
-                'success'     => TRUE,
-                'error'       => FALSE,
-                'data'        => [],
-                'message'     => 'Deleted Successfully']);
+            $attendance = Attendance::where('user_id',$id)->get();
+            if(count($attendance) > 0){
+                return response()->json([
+                    'status_code' => Response::HTTP_UNPROCESSABLE_ENTITY,
+                    'success'     => FALSE,
+                    'error'       => TRUE,
+                    'data'        => [],
+                    'message'     => 'Cannot Deleted User, Because User have attendance']);
+            }else{
+                $user->delete();
+                return response()->json([
+                    'status_code' => Response::HTTP_OK,
+                    'success'     => TRUE,
+                    'error'       => FALSE,
+                    'data'        => [],
+                    'message'     => 'Deleted Successfully']);
+                }
         }
         else{
             return response()->json([

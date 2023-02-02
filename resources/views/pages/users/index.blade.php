@@ -103,6 +103,18 @@
                                     }
                                 })
                                 
+                            }else{
+                              Swal.fire({
+                                    icon: 'error',
+                                    title: response.message,
+                                    confirmButtonText: 'Ok',
+                                    }).then((result) => {
+                                    /* Read more about isConfirmed, isDenied below */
+                                    if (result.isConfirmed) {
+                                      $('#user_list').DataTable().ajax.reload();
+    
+                                    }
+                                })
                             }
                         }
                     });
