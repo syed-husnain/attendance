@@ -52,7 +52,7 @@ class AttendanceCronJob extends Command
         
         foreach( $users as $user ){
 
-            $attendance =  Attendance::where('user_id',$user->id)->where('due_date',$due_date)->first();
+            $attendance =  Attendance::where('user_id',$user->id)->where('status',1)->where('due_date',$due_date)->first();
             if($attendance){
 
                 if($attendance->check_out == null && $attendance->status != 'Absent'){

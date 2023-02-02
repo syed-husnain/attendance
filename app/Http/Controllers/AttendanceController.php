@@ -32,7 +32,7 @@ class AttendanceController extends Controller
             return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('name', function($row){     
-                        return $row->user->name;
+                        return $row->user->name ?? 'No Name';
                     })
                     ->addColumn('due_date', function($row){     
                         return date('d M Y', strtotime($row->due_date));
