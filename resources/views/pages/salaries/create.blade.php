@@ -140,13 +140,28 @@
                         }).then((result) => {
                         /* Read more about isConfirmed, isDenied below */
                         if (result.isConfirmed) {
-                            window.location="{{route('user.index')}}";
+                            window.location="{{route('salary.index')}}";
 
                         } else if (result.isDenied) {
                             Swal.fire('Changes are not saved', '', 'info')
                         }
                     })
 
+                }else{
+                  Swal.fire({
+                        icon: 'error',
+                        title: response.message,
+                        confirmButtonText: 'Ok',
+                        }).then((result) => {
+                        /* Read more about isConfirmed, isDenied below */
+                        if (result.isConfirmed) {
+                          $( "#submit" ).prop( "disabled", true );
+                            // window.location="{{route('user.index')}}";
+
+                        } else if (result.isDenied) {
+                            Swal.fire('Changes are not saved', '', 'info')
+                        }
+                    })
                 }
             },
             error: function(response) {

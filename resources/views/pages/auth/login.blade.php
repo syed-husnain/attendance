@@ -14,7 +14,7 @@
           </div>
           <div class="col-md-8 ps-md-0">
             <div class="auth-form-wrapper px-4 py-5">
-              <a href="#" class="noble-ui-logo d-block mb-2">Noble<span>UI</span></a>
+              <a href="#" class="noble-ui-logo d-block mb-2">AMS</a>
               <h5 class="text-muted fw-normal mb-4">Welcome back! Log in to your account.</h5>
               <form action="{{ route('login') }}" method="POST" class="forms-sample">
                 @csrf
@@ -31,7 +31,7 @@
                   <button type="submit" class="btn btn-primary me-2 mb-2 mb-md-0">Login</button>
                   
                 </div>
-                <a href="{{ url('/auth/register') }}" class="d-block mt-3 text-muted">Not a user? Sign up</a>
+                {{-- <a href="{{ url('/auth/register') }}" class="d-block mt-3 text-muted">Not a user? Sign up</a> --}}
               </form>
             </div>
           </div>
