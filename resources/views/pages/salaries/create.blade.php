@@ -323,8 +323,26 @@ function errorsGet(errors) {
                         $('#salary').val(response.salary);
 
                     } else {
-                        // $('#price_after_applying_vat').html(response.message).css('color', 'red');
+                      $('#basic_salary').val(response.basic_salary);
+                        $('#working_days').val(response.working_days);
+                        $('#working_hours').val(response.working_hours);
+                        $('#late').val(response.total_late);
+                        $('#absent').val(response.total_absent);
+                        $('#salary').val(response.salary);
+                      Swal.fire({
+                        icon: 'error',
+                        title: response.message,
+                        confirmButtonText: 'Ok',
+                        }).then((result) => {
+                        /* Read more about isConfirmed, isDenied below */
+                        if (result.isConfirmed) {
+                          $( "#submit" ).prop( "disabled", true );
+                            // window.location="{{route('user.index')}}";
 
+                        } else if (result.isDenied) {
+                            Swal.fire('Changes are not saved', '', 'info')
+                        }
+                    })
                     }
                 },
                 error: function (response) {

@@ -163,7 +163,6 @@ class SalaryController extends Controller
     }
     public function getWorkingDays(Request $request)
     {
-        // dd($request->all());
 
         if ($request->has('date_range')) {
 
@@ -175,7 +174,18 @@ class SalaryController extends Controller
 
             // get full status attendance
             $attendance  = getFullStatusAttendance($request->user_id, $from, $to);
-
+            if($attendance->totalDays == 0){
+                return response()->json([
+                    'status'                => 0,
+                    'message'               => 'No Record Found',
+                    'basic_salary'          => 0,
+                    'working_hours'         => 0,
+                    'working_days'          => 0,
+                    'total_late'            => 0,
+                    'total_absent'          => 0,
+                    'salary'                => 0
+                ]);
+            }
             // get attendance for status reduced
             $reducedAttendance  = getReducedStatusAttendance($user, $from, $to);
 
