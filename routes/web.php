@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+// cron job route
+Route::get('/attendance-cron','AttendanceCronController@index')->name('index');
 
 Route::middleware('guest')->group(function(){
     Route::get('/login','Auth\AuthController@loginShow')->name('login');
